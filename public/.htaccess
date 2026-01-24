@@ -1,0 +1,9 @@
+Options -MultiViews
+RewriteEngine On
+
+# Permite acesso direto a arquivos existentes (CSS, JS, Imagens)
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+
+# Todo o resto vai para o index.php
+RewriteRule ^ index.php [L]

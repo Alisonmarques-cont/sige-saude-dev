@@ -1,0 +1,1 @@
+<div id="toast-message" style="position:fixed; bottom:20px; right:20px; background:var(--primary); color:#fff; padding:12px 24px; border-radius:8px; transform:translateY(100px); transition:0.3s; opacity:0; z-index:3000; font-weight:500; box-shadow:var(--shadow-md);">Operação Realizada!</div>

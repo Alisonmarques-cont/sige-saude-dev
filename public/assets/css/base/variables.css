@@ -1,0 +1,24 @@
+:root {
+    /* Paleta Enterprise */
+    --primary: #0f172a;       /* Slate 900 */
+    --primary-hover: #1e293b; /* Slate 800 */
+    --accent: #2563eb;        /* Azul Royal */
+    
+    --success: #059669;       /* Verde Esmeralda */
+    --danger: #dc2626;        /* Vermelho */
+    --warning: #d97706;       /* Âmbar */
+    
+    --bg-body: #f1f5f9;       /* Slate 100 */
+    --bg-card: #ffffff;
+    
+    --text-main: #334155;     /* Slate 700 */
+    --text-muted: #64748b;    /* Slate 500 */
+    
+    --border: #e2e8f0;        /* Slate 200 */
+    
+    --sidebar-width: 260px;
+    --header-height: 70px;
+    --radius: 8px;
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
