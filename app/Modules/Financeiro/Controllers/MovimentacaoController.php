@@ -215,7 +215,7 @@ class MovimentacaoController {
     }
 
     // =========================================================================
-    // EXTRATO E LIVRO DIÁRIO
+    // EXTRATO E LIVRO DIÁRIO (COM SALDO ANTERIOR)
     // =========================================================================
 
     // Lista apenas os realizados (Extrato Bancário)
@@ -238,24 +238,38 @@ class MovimentacaoController {
         // Se uma conta for selecionada, calculamos o saldo
         if (!empty($contaId)) {
             try {
-                // 1. Saldo Inicial Configurado
+                // 1. Saldo Inicial Configurado (Base)
                 $stmt = $this->db->prepare("SELECT saldo_inicial FROM contas_bancarias_entidade WHERE id = ?");
                 $stmt->execute([$contaId]);
                 $saldoInicialConfig = (float) $stmt->fetchColumn();
 
-                // 2. Saldo Anterior ao período
-                $saldoAnterior = 0;
+                // 2. Calcular Saldo Anterior (Movimentos antes da Data Início)
+                $saldoAnteriorMovimentos = 0;
                 if (!empty($dataIni)) {
-                    $sqlSaldo = "SELECT COALESCE(SUM(CASE WHEN tipo_movimento = 'Receita' THEN valor ELSE -valor END), 0) 
-                                 FROM lancamentos WHERE conta_bancaria_id = ? AND data_movimento < ?";
-                    $stmt = $this->db->prepare($sqlSaldo);
-                    $stmt->execute([$contaId, $dataIni]);
-                    $saldoAnterior = (float) $stmt->fetchColumn();
+                    // Soma Receitas anteriores
+                    $sqlEntradas = "SELECT COALESCE(SUM(valor), 0) FROM lancamentos 
+                                    WHERE conta_bancaria_id = ? AND data_movimento < ? AND tipo_movimento = 'Receita'";
+                    $stmtEnt = $this->db->prepare($sqlEntradas);
+                    $stmtEnt->execute([$contaId, $dataIni]);
+                    $entradasAnt = (float) $stmtEnt->fetchColumn();
+
+                    // Soma Despesas anteriores
+                    $sqlSaidas = "SELECT COALESCE(SUM(valor), 0) FROM lancamentos 
+                                  WHERE conta_bancaria_id = ? AND data_movimento < ? AND tipo_movimento = 'Despesa'";
+                    $stmtSai = $this->db->prepare($sqlSaidas);
+                    $stmtSai->execute([$contaId, $dataIni]);
+                    $saidasAnt = (float) $stmtSai->fetchColumn();
+
+                    $saldoAnteriorMovimentos = $entradasAnt - $saidasAnt;
                 }
 
-                $saldoCorrente = $saldoInicialConfig + $saldoAnterior;
+                // O Saldo Anterior FINAL é o Base + Movimentos Anteriores
+                $saldoCorrente = $saldoInicialConfig + $saldoAnteriorMovimentos;
+                
+                // Armazena este valor para enviar ao frontend
+                $saldoAnteriorParaExibicao = $saldoCorrente;
 
-                // 3. Buscar Itens REALIZADOS
+                // 3. Buscar Itens do Período (REALIZADOS)
                 $sqlReal = "SELECT l.id, l.data_movimento, l.tipo_movimento, l.descricao, l.valor, 'Realizado' as status_item 
                             FROM lancamentos l WHERE l.conta_bancaria_id = ?";
                 $paramsReal = [$contaId];
@@ -268,7 +282,7 @@ class MovimentacaoController {
                 $stmtReal->execute($paramsReal);
                 $items = $stmtReal->fetchAll(PDO::FETCH_ASSOC);
 
-                // 4. Buscar Itens PENDENTES (Se for Livro Diário)
+                // 4. Buscar Itens PENDENTES (Apenas se for Livro Diário)
                 if ($incluirPendentes) {
                     $sqlPen = "SELECT e.id, e.data_vencimento as data_movimento, 'Despesa' as tipo_movimento, 
                                CONCAT(e.descricao, ' (Previsto)') as descricao, e.valor_total as valor, 'Pendente' as status_item
@@ -286,13 +300,13 @@ class MovimentacaoController {
                     $items = array_merge($items, $pendentes);
                 }
 
-                // 5. Ordenar por Data ASC para cálculo
+                // 5. Ordenar por Data CRESCENTE para cálculo do saldo linha a linha
                 usort($items, function($a, $b) {
                     if ($a['data_movimento'] == $b['data_movimento']) return 0;
                     return ($a['data_movimento'] < $b['data_movimento']) ? -1 : 1;
                 });
 
-                // 6. Calcular Saldo Linha a Linha
+                // 6. Calcular Saldo Acumulado em cada linha
                 foreach ($items as &$row) {
                     $val = (float) $row['valor'];
                     if ($row['tipo_movimento'] === 'Receita') {
@@ -303,17 +317,23 @@ class MovimentacaoController {
                     $row['saldo_acumulado'] = $saldoCorrente;
                 }
 
-                // Inverte para exibir mais recente no topo (Padrão Extrato)
+                // Inverte para exibir mais recente no topo (Padrão de Extrato Visual)
                 $items = array_reverse($items);
-                echo json_encode($items);
+                
+                // RETORNO ESTRUTURADO (Branch Saldo Anterior)
+                echo json_encode([
+                    'status' => 'ok',
+                    'saldo_anterior' => $saldoAnteriorParaExibicao,
+                    'itens' => $items
+                ]);
 
             } catch (\Exception $e) {
                 http_response_code(500);
-                echo json_encode(['error' => $e->getMessage()]);
+                echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
             }
 
         } else {
-            // Se não selecionar conta, lista geral (comportamento padrão antigo)
+            // Se não selecionar conta, mantemos o comportamento de listagem simples
             $sql = "SELECT l.*, p.nome_programa 
                     FROM lancamentos l 
                     LEFT JOIN programas_fontes p ON l.programa_id = p.id 
@@ -324,7 +344,14 @@ class MovimentacaoController {
             if (!empty($dataFim)) $sql .= " AND l.data_movimento <= '$dataFim'";
 
             $sql .= " ORDER BY l.data_movimento DESC LIMIT 200";
-            echo json_encode($this->db->query($sql)->fetchAll(PDO::FETCH_ASSOC));
+            $rawItems = $this->db->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Retorna formato compatível
+            echo json_encode([
+                'status' => 'ok',
+                'saldo_anterior' => null, // Não se aplica sem conta definida
+                'itens' => $rawItems
+            ]);
         }
     }
 
@@ -431,13 +458,16 @@ class MovimentacaoController {
         $tipo = $_GET['tipo'] ?? '';
         $dados = [];
         
-        // [ATUALIZAÇÃO] Captura os dados do Livro Diário para impressão
         if ($tipo === 'livro_diario') {
-            // Reutiliza a lógica do Livro Diário capturando a saída
             ob_start();
             $this->listarLivroDiario();
             $json = ob_get_clean();
-            $dados = json_decode($json, true);
+            
+            // Decodifica a nova estrutura
+            $res = json_decode($json, true);
+            $dados = $res['itens'] ?? [];
+            // Nota: Para impressão PDF simples, o saldo anterior poderia ser adicionado aqui, 
+            // mas o template print/relatorio.php teria que ser ajustado.
         } 
         else if ($tipo === 'lancamentos') {
             $dados = $this->db->query("SELECT * FROM lancamentos ORDER BY data_movimento DESC LIMIT 50")->fetchAll(PDO::FETCH_ASSOC);

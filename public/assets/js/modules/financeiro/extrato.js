@@ -21,11 +21,23 @@ export async function carregarDadosExtrato() {
         data_fim: dataFim
     });
 
-    const l = await apiFetch('/financeiro/lancamentos/listar?' + params.toString()); 
+    const res = await apiFetch('/financeiro/lancamentos/listar?' + params.toString()); 
     tb.innerHTML = "";
     
-    if(l && l.length > 0) {
-        l.forEach(x => {
+    // Tratamento para a nova estrutura { status, saldo_anterior, itens }
+    let lista = [];
+    let saldoAnterior = null;
+
+    if (res && res.itens) {
+        lista = res.itens;
+        saldoAnterior = res.saldo_anterior;
+    } else if (Array.isArray(res)) {
+        // Fallback para estrutura antiga (caso necessário)
+        lista = res;
+    }
+
+    if(lista && lista.length > 0) {
+        lista.forEach(x => {
             const cor = x.tipo_movimento === 'Receita' ? 'var(--success)' : 'var(--danger)';
             const sinal = x.tipo_movimento === 'Receita' ? '+' : '-';
             const saldoDisplay = (x.saldo_acumulado !== undefined) ? `<b>${formatarMoeda(x.saldo_acumulado)}</b>` : '-';
@@ -40,6 +52,21 @@ export async function carregarDadosExtrato() {
         });
     } else {
         tb.innerHTML = "<tr><td colspan='5' class='text-center text-muted'>Nenhum lançamento registrado no período.</td></tr>";
+    }
+
+    // --- LINHA DE SALDO ANTERIOR (BRANCH SALDO ANTERIOR) ---
+    // Exibe apenas se uma conta específica foi selecionada e o saldo foi retornado
+    if (contaId && saldoAnterior !== null) {
+        const dataLabel = dataIni ? formatarData(dataIni) : 'Início';
+        const linhaSaldo = `
+            <tr style="background-color: #f1f5f9; border-top: 2px solid var(--border); font-weight: 600; color: var(--text-muted);">
+                <td>${dataLabel}</td>
+                <td colspan="3" style="text-align: right; text-transform: uppercase; letter-spacing: 0.5px;">Saldo Anterior:</td>
+                <td style="color: var(--primary); font-size: 1rem;">${formatarMoeda(saldoAnterior)}</td>
+            </tr>
+        `;
+        // Adiciona ao final da tabela (já que a ordem é DESC, o saldo anterior é o estado "antes" do último item visível)
+        tb.insertAdjacentHTML('beforeend', linhaSaldo);
     }
 }
 

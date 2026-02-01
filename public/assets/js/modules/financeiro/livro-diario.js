@@ -17,11 +17,22 @@ export async function carregarLivroDiario() {
         data_fim: dataFim
     });
 
-    const l = await apiFetch('/financeiro/livro-diario/listar?' + params.toString()); 
+    const res = await apiFetch('/financeiro/livro-diario/listar?' + params.toString()); 
     tb.innerHTML = "";
     
-    if(l && l.length > 0) {
-        l.forEach(x => {
+    // Tratamento da nova resposta da API (Branch Saldo Anterior)
+    let lista = [];
+    let saldoAnterior = null;
+
+    if (res && res.itens) {
+        lista = res.itens;
+        saldoAnterior = res.saldo_anterior;
+    } else if (Array.isArray(res)) {
+        lista = res;
+    }
+
+    if(lista && lista.length > 0) {
+        lista.forEach(x => {
             const cor = x.tipo_movimento === 'Receita' ? 'var(--success)' : 'var(--danger)';
             const sinal = x.tipo_movimento === 'Receita' ? '+' : '-';
             
@@ -43,6 +54,20 @@ export async function carregarLivroDiario() {
         });
     } else {
         tb.innerHTML = "<tr><td colspan='6' class='text-center text-muted'>Nenhum registro encontrado no período.</td></tr>";
+    }
+
+    // --- LINHA DE SALDO ANTERIOR ---
+    if (contaId && saldoAnterior !== null) {
+        const dataLabel = dataIni ? formatarData(dataIni) : 'Início';
+        const linhaSaldo = `
+            <tr style="background-color: #f8fafc; border-top: 2px solid #e2e8f0; font-weight: 600;">
+                <td>${dataLabel}</td>
+                <td colspan="3" style="text-align: right; color: var(--text-muted);">SALDO ANTERIOR:</td>
+                <td style="color: var(--primary); font-size: 1rem;">${formatarMoeda(saldoAnterior)}</td>
+                <td></td>
+            </tr>
+        `;
+        tb.insertAdjacentHTML('beforeend', linhaSaldo);
     }
 }
 
