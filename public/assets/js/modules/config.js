@@ -3,6 +3,9 @@ import { apiFetch, apiPost } from '../core/api.js';
 import { showToast } from '../core/utils.js';
 import { fecharModal } from '../core/ui.js';
 
+// [NOVO] Importação do Plano de Contas
+import { carregarPlanoContas } from './financeiro/plano_contas.js';
+
 // Variável local para contas temporárias
 let contasFornTemp = [];
 
@@ -15,13 +18,16 @@ document.addEventListener('sige:tab-change', (e) => {
     if (id === 'conf-contas') carregarContasEnt();
     if (id === 'conf-programas') carregarProgramas();
     if (id === 'conf-fornecedores') carregarFornecedores();
+    
+    // [NOVO] Verifica se clicou na aba do Plano de Contas
+    if (id === 'conf-pdc') carregarPlanoContas();
 });
 
 // Função chamada pelo main.js ao entrar na tela via Sidebar
 export function initConfig() {
     carregarDadosEntidade();
     // Garante que a primeira aba esteja carregada se estiver ativa
-    if(document.getElementById('conf-entidade').classList.contains('active')) {
+    if(document.getElementById('conf-entidade') && document.getElementById('conf-entidade').classList.contains('active')) {
         carregarDadosEntidade();
     }
 }
@@ -52,7 +58,7 @@ export async function salvarEntidade() {
 
 export async function carregarContasEnt() {
     const l = await apiFetch('/config/contas/listar');
-    const tb = document.getElementById('tabela_contas_ent').querySelector('tbody');
+    const tb = document.getElementById('tabela_contas_ent') ? document.getElementById('tabela_contas_ent').querySelector('tbody') : null;
     if(!tb) return;
 
     tb.innerHTML = "";
@@ -116,7 +122,7 @@ export async function excluirContaEnt(id) {
 
 export async function carregarProgramas() {
     const l = await apiFetch('/config/programas/listar');
-    const tb = document.getElementById('tabela_programas').querySelector('tbody');
+    const tb = document.getElementById('tabela_programas') ? document.getElementById('tabela_programas').querySelector('tbody') : null;
     if(!tb) return;
 
     tb.innerHTML = "";
@@ -180,7 +186,7 @@ export async function excluirPrograma(id) {
 
 export async function carregarFornecedores() {
     const l = await apiFetch('/config/fornecedores/listar');
-    const tb = document.getElementById('tabela_fornecedores').querySelector('tbody');
+    const tb = document.getElementById('tabela_fornecedores') ? document.getElementById('tabela_fornecedores').querySelector('tbody') : null;
     if(!tb) return;
 
     tb.innerHTML = "";
@@ -204,7 +210,8 @@ export function abrirModalFornecedor() {
     ['forn_cnpj','forn_razao','forn_tel','forn_email','forn_conta_banco','forn_conta_agencia','forn_conta_num'].forEach(i => {
         if(document.getElementById(i)) document.getElementById(i).value = "";
     });
-    document.getElementById('lista_contas_forn_ui').innerHTML = "";
+    const listaUi = document.getElementById('lista_contas_forn_ui');
+    if(listaUi) listaUi.innerHTML = "";
     document.getElementById('modal_fornecedor_overlay').classList.add('show');
 }
 
@@ -214,7 +221,8 @@ export function editarFornecedor(dados) {
     document.getElementById('forn_razao').value = dados.razao_social;
     document.getElementById('forn_tel').value = dados.telefone;
     document.getElementById('forn_email').value = dados.email;
-    document.getElementById('lista_contas_forn_ui').innerHTML = "<small>(Contas bancárias devem ser gerenciadas separadamente)</small>";
+    const listaUi = document.getElementById('lista_contas_forn_ui');
+    if(listaUi) listaUi.innerHTML = "<small>(Contas bancárias devem ser gerenciadas separadamente)</small>";
     document.getElementById('modal_fornecedor_overlay').classList.add('show');
 }
 
