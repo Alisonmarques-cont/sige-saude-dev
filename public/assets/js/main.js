@@ -4,6 +4,10 @@ import { carregarDashboard } from './modules/dashboard.js';
 // --- Módulo Financeiro Refatorado ---
 import { initFinanceiro, carregarDadosExtrato, carregarContasFornecedores, carregarLivroDiario } from './modules/financeiro/index.js';
 
+// --- Importação Nova: Plano de Contas ---
+import { carregarPlanoContas } from './modules/financeiro/plano_contas.js'; 
+// (Certifique-se que o arquivo plano_contas.js foi criado na pasta modules/financeiro)
+
 import { carregarPregoes, verificarEInjetarModaisContratos } from './modules/contratos.js';
 import { initConfig } from './modules/config.js';
 
@@ -30,12 +34,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 3. Mapeamento das páginas para as funções de carga (Router)
+    // Aqui dizemos: "Quando clicar no link X, rode a função Y"
     const routeMap = {
         'dashboard': carregarDashboard,
         'empenhos': initFinanceiro,
         'lancamentos': carregarDadosExtrato,
         'contas-fornecedores': () => carregarContasFornecedores(''),
         'livro-diario': carregarLivroDiario,
+        'plano-contas': carregarPlanoContas, // <--- NOVA ROTA ADICIONADA AQUI
         'contratos': carregarPregoes,
         'config': initConfig
     };

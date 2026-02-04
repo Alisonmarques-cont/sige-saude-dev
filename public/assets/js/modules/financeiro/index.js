@@ -54,7 +54,7 @@ export function mudarVisaoMov(tipo) {
         document.getElementById('wrapper_receitas')?.classList.remove('hidden');
         
         if(mainBtn) {
-            mainBtn.innerHTML = '<i class="ph ph-plus"></i> Nova Receita';
+            mainBtn.innerHTML = '<i class="ph ph-plus"></i> Novo Lançamento';
             mainBtn.setAttribute('onclick', 'abrirModalReceita()');
         }
         carregarReceitas();

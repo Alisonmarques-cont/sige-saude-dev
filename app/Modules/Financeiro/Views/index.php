@@ -157,13 +157,13 @@
 
             <div class="tabs" style="margin-bottom: 20px; border-bottom: 1px solid var(--border);">
                 <button class="tab-link active" onclick="alternarAbaEmpenho('aba_emp_cadastral', this)">
-                    <i class="ph ph-identification-card"></i> 1. Cadastral
+                    <i class="ph ph-identification-card"></i>Cadastral
                 </button>
                 <button class="tab-link" onclick="alternarAbaEmpenho('aba_emp_orcamentaria', this)">
-                    <i class="ph ph-files"></i> 2. Orçamentária
+                    <i class="ph ph-files"></i>Orçamentária
                 </button>
                 <button class="tab-link" onclick="alternarAbaEmpenho('aba_emp_financeira', this)">
-                    <i class="ph ph-currency-dollar"></i> 3. Financeira
+                    <i class="ph ph-currency-dollar"></i>Financeira
                 </button>
             </div>
 

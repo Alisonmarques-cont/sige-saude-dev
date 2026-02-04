@@ -155,8 +155,8 @@ export async function carregarPregoes(termo = '') {
             <div class="processo-card">
                 <div class="processo-header">
                     <div style="display:flex; align-items:center; gap:12px;">
-                        <span class="badge-processo"><i class="ph-fill ph-folder"></i> Proc. ${p.processo}</span>
-                        <span style="font-weight:600; color:#334155; font-size:0.95rem">Pregão Presencial ${p.pregao || 'N/A'}</span>
+                        <span class="badge-processo"><i class="ph-fill ph-folder"></i>Processo Administrativo Nº ${p.processo}</span>
+                        <span style="font-weight:600; color:#334155; font-size:0.95rem">Pregão Presencial: ${p.pregao || 'N/A'}</span>
                     </div>
                     <div style="display:flex; gap:15px; align-items:center">
                         <div class="processo-valor" title="Valor Estimado">
