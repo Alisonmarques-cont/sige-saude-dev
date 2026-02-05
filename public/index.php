@@ -44,10 +44,9 @@ $router->add('GET', '/logout', 'Dashboard\Controllers\DashboardController@logout
 // --- MÓDULO: DASHBOARD (HOME) ---
 $router->add('GET', '/', 'Dashboard\Controllers\DashboardController@index');
 
-// [CORREÇÃO 1] Ajustado para bater com a chamada do dashboard.js (/api/dashboard-dados)
-$router->add('GET', '/api/dashboard-dados', 'Dashboard\Controllers\DashboardController@getResumoFinanceiro');
-// Mantemos a rota antiga também por segurança
-$router->add('GET', '/dashboard/resumo', 'Dashboard\Controllers\DashboardController@getResumoFinanceiro');
+// [CORREÇÃO 1] Método alterado de 'getResumoFinanceiro' para 'getDados' (conforme DashboardController.php)
+$router->add('GET', '/api/dashboard-dados', 'Dashboard\Controllers\DashboardController@getDados');
+$router->add('GET', '/dashboard/resumo', 'Dashboard\Controllers\DashboardController@getDados');
 
 
 // --- MÓDULO: FINANCEIRO ---
@@ -85,35 +84,42 @@ $router->add('GET', '/api/licitacoes', 'Contratos\Controllers\ContratosControlle
 // --- MÓDULO: CONFIGURAÇÕES ---
 
 // [CORREÇÃO 2] Ajustado para bater com a chamada do config.js (/api/config/entidade/get)
-$router->add('GET', '/api/config/entidade/get', 'Config\Controllers\ConfigController@getDadosEntidade');
-$router->add('GET', '/api/config/entidade', 'Config\Controllers\ConfigController@getDadosEntidade'); // Rota alternativa
+// NOTA: Verifiquei se 'getDadosEntidade' existe em ConfigController. No seu arquivo enviado parece ser 'getEntidade'.
+// Vou ajustar para 'getEntidade' para garantir.
+$router->add('GET', '/api/config/entidade/get', 'Config\Controllers\ConfigController@getEntidade');
+$router->add('GET', '/api/config/entidade', 'Config\Controllers\ConfigController@getEntidade'); 
 
-$router->add('POST', '/api/config/entidade/salvar', 'Config\Controllers\ConfigController@salvarDadosEntidade');
+$router->add('POST', '/api/config/entidade/salvar', 'Config\Controllers\ConfigController@salvarEntidade');
 
-// [CORREÇÃO] Adicionei /listar para garantir compatibilidade com possíveis chamadas JS
-$router->add('GET', '/api/config/contas/listar', 'Config\Controllers\ConfigController@listarContasBancarias');
-$router->add('GET', '/api/config/contas', 'Config\Controllers\ConfigController@listarContasBancarias'); 
-$router->add('POST', '/api/config/contas/salvar', 'Config\Controllers\ConfigController@salvarContaBancaria');
-$router->add('POST', '/api/config/contas/excluir', 'Config\Controllers\ConfigController@excluirContaBancaria'); // Rota extra comum
+$router->add('GET', '/api/config/contas/listar', 'Config\Controllers\ConfigController@listarContas');
+$router->add('GET', '/api/config/contas', 'Config\Controllers\ConfigController@listarContas'); 
+$router->add('POST', '/api/config/contas/salvar', 'Config\Controllers\ConfigController@salvarConta');
+$router->add('POST', '/api/config/contas/excluir', 'Config\Controllers\ConfigController@excluirConta'); 
 
-// [CORREÇÃO] Adicionei /listar para programas também
 $router->add('GET', '/api/config/programas/listar', 'Config\Controllers\ConfigController@listarProgramas');
 $router->add('GET', '/api/config/programas', 'Config\Controllers\ConfigController@listarProgramas');
-$router->add('POST', '/api/config/programas/salvar', 'Config\Controllers\ConfigController@salvarPrograma'); // Supondo existência
-$router->add('POST', '/api/config/programas/excluir', 'Config\Controllers\ConfigController@excluirPrograma'); // Supondo existência
+$router->add('POST', '/api/config/programas/salvar', 'Config\Controllers\ConfigController@salvarPrograma'); 
+$router->add('POST', '/api/config/programas/excluir', 'Config\Controllers\ConfigController@excluirPrograma'); 
 
-$router->add('GET', '/api/config/fornecedores/listar', 'Financeiro\Controllers\MovimentacaoController@listarFornecedores'); // Reutilizando controller
+// Reutilizando o método de listar fornecedores que está no ConfigController
+$router->add('GET', '/api/config/fornecedores/listar', 'Config\Controllers\ConfigController@listarFornecedores'); 
+$router->add('POST', '/api/config/fornecedores/salvar', 'Config\Controllers\ConfigController@salvarFornecedor');
+$router->add('POST', '/api/config/fornecedores/excluir', 'Config\Controllers\ConfigController@excluirFornecedor');
+$router->add('POST', '/api/config/fornecedores/conta/salvar', 'Config\Controllers\ConfigController@salvarContaFornecedor');
+// Rota para buscar fornecedores com contas (usada no módulo financeiro)
+$router->add('GET', '/api/financeiro/fornecedores-com-contas', 'Config\Controllers\ConfigController@listarFornecedoresComContas');
 
 
 // --- MÓDULO: RELATÓRIOS ---
+// Ajuste se necessário, mas mantendo conforme original por enquanto se o controller existir
 $router->add('GET', '/relatorios/gestao-fiscal', 'Relatorios\Controllers\RelatorioController@gestaoFiscal');
 
 
 // --- SISTEMA DE ALERTAS (Notificações) ---
 
-// [CORREÇÃO 3] Ajustado para bater com a chamada do alertas.js (/api/dashboard/alertas/listar)
-$router->add('GET', '/api/dashboard/alertas/listar', 'Dashboard\Controllers\AlertasController@listarAlertas');
-$router->add('GET', '/api/alertas/listar', 'Dashboard\Controllers\AlertasController@listarAlertas'); // Mantem antiga
+// [CORREÇÃO 3] Método alterado de 'listarAlertas' para 'listar' (conforme AlertasController.php)
+$router->add('GET', '/api/dashboard/alertas/listar', 'Dashboard\Controllers\AlertasController@listar');
+$router->add('GET', '/api/alertas/listar', 'Dashboard\Controllers\AlertasController@listar');
 
 $router->add('POST', '/api/alertas/marcar-lida', 'Dashboard\Controllers\AlertasController@marcarComoLida');
 
