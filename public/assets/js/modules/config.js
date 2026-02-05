@@ -2,7 +2,7 @@ import { apiFetch, apiPost } from '../core/api.js';
 import { showToast } from '../core/utils.js';
 import { fecharModal } from '../core/ui.js';
 
-// Importação do Plano de Contas (Certifique-se que o arquivo existe em modules/financeiro)
+// Importação do Plano de Contas
 import { carregarPlanoContas } from './financeiro/plano_contas.js';
 
 // Variável local para contas temporárias de fornecedores
@@ -13,26 +13,27 @@ let contasFornTemp = [];
 // =============================================================================
 document.addEventListener('sige:tab-change', (e) => {
     const id = e.detail.id;
-    console.log("Aba alterada:", id); // Debug para verificar troca
+    console.log("Aba alterada:", id); 
 
     if (id === 'conf-entidade') carregarDadosEntidade();
     if (id === 'conf-contas') carregarContasEnt();
     if (id === 'conf-programas') carregarProgramas();
     if (id === 'conf-pdc') carregarPlanoContas();
-    
-    // Fornecedores (se houver aba no futuro)
     if (id === 'conf-fornecedores') carregarFornecedores();
+    if (id === 'conf-seguranca') console.log("Aba Segurança selecionada (implementação futura)");
 });
 
-// Função de inicialização chamada pelo Router
+// Função de inicialização
 export function initConfig() {
     carregarDadosEntidade();
-    // Verifica qual aba está ativa no HTML ao carregar
+    
+    // Verifica qual aba está ativa no HTML ao carregar e força o carregamento
     const activeTab = document.querySelector('.tab-content.active');
     if(activeTab) {
-        if(activeTab.id === 'conf-contas') carregarContasEnt();
-        if(activeTab.id === 'conf-programas') carregarProgramas();
-        if(activeTab.id === 'conf-pdc') carregarPlanoContas();
+        const id = activeTab.id;
+        if(id === 'conf-contas') carregarContasEnt();
+        if(id === 'conf-programas') carregarProgramas();
+        if(id === 'conf-pdc') carregarPlanoContas();
     }
 }
 
@@ -43,13 +44,18 @@ export function initConfig() {
 export async function carregarDadosEntidade() {
     try {
         const d = await apiFetch('/config/entidade/get');
-        if(d && document.getElementById('entidade_nome')) {
-            document.getElementById('entidade_nome').value = d.nome_completo || '';
-            document.getElementById('entidade_cnpj').value = d.cnpj || '';
+        // Verifica se o elemento principal existe antes de tentar preencher
+        const inputNome = document.getElementById('entidade_nome');
+        
+        if(d && inputNome) {
+            inputNome.value = d.nome_completo || '';
+            if(document.getElementById('entidade_cnpj')) document.getElementById('entidade_cnpj').value = d.cnpj || '';
             if(document.getElementById('entidade_cidade')) document.getElementById('entidade_cidade').value = d.cidade || '';
             if(document.getElementById('entidade_uf')) document.getElementById('entidade_uf').value = d.uf || '';
             if(document.getElementById('entidade_logradouro')) document.getElementById('entidade_logradouro').value = d.logradouro || '';
             if(document.getElementById('entidade_telefone')) document.getElementById('entidade_telefone').value = d.telefone || '';
+        } else if (!inputNome) {
+            console.warn("Input 'entidade_nome' não encontrado na aba Entidade.");
         }
     } catch (e) {
         console.error("Erro ao carregar entidade:", e);
@@ -63,8 +69,8 @@ export async function salvarConfiguracaoAtual() {
 
     try {
         const dados = {
-            nome_completo: document.getElementById('entidade_nome').value, 
-            cnpj: document.getElementById('entidade_cnpj').value,
+            nome_completo: document.getElementById('entidade_nome')?.value || '', 
+            cnpj: document.getElementById('entidade_cnpj')?.value || '',
             cidade: document.getElementById('entidade_cidade')?.value,
             uf: document.getElementById('entidade_uf')?.value,
             logradouro: document.getElementById('entidade_logradouro')?.value,
@@ -86,16 +92,26 @@ export async function salvarConfiguracaoAtual() {
 // =============================================================================
 
 export async function carregarContasEnt() {
-    const tb = document.getElementById('lista_contas_bancarias'); 
-    if(!tb) return;
+    // Tenta achar pelo ID específico
+    let tb = document.getElementById('lista_contas_bancarias');
+    
+    // FALLBACK: Se não achar pelo ID, procura qualquer tbody dentro da aba de contas
+    if(!tb) {
+        const tab = document.getElementById('conf-contas');
+        if(tab) tb = tab.querySelector('tbody');
+    }
+
+    if(!tb) {
+        console.warn("Tabela de contas (tbody) não encontrada no HTML.");
+        return;
+    }
 
     tb.innerHTML = '<tr><td colspan="5" class="text-center">Carregando...</td></tr>';
 
     try {
         const l = await apiFetch('/config/contas/listar');
         
-        if(l && l.length > 0) {
-            // Renderização otimizada com map/join
+        if(l && Array.isArray(l) && l.length > 0) {
             tb.innerHTML = l.map(c => {
                 const dados = JSON.stringify(c).replace(/"/g, '&quot;');
                 return `
@@ -115,22 +131,20 @@ export async function carregarContasEnt() {
         }
     } catch (e) {
         console.error("Erro contas:", e);
-        tb.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Erro ao carregar.</td></tr>';
+        tb.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Erro ao carregar dados.</td></tr>';
     }
 }
 
 export function novaContaBancaria() { 
-    const modal = document.getElementById('modal_conta_ent'); // Verifique se este ID existe no HTML (Shared/Views/modals ou Config/Views)
+    const modal = document.getElementById('modal_conta_ent'); 
     if(modal) {
-        // Limpa campos
         if(document.getElementById('conta_ent_id')) document.getElementById('conta_ent_id').value = ""; 
         ['conta_ent_banco','conta_ent_ag','conta_ent_num','conta_ent_desc'].forEach(i => {
             if(document.getElementById(i)) document.getElementById(i).value = "";
         });
         modal.classList.add('show');
     } else {
-        // Fallback: Se o modal não estiver no HTML, avisa (provavelmente falta include dos modais)
-        alert("O modal 'modal_conta_ent' não foi encontrado no HTML. Verifique os arquivos de View.");
+        alert("Erro: Modal de Nova Conta (modal_conta_ent) não encontrado no HTML.");
     }
 }
 
@@ -176,15 +190,26 @@ export async function excluirContaEnt(id) {
 // =============================================================================
 
 export async function carregarProgramas() {
-    const tb = document.getElementById('lista_programas');
-    if(!tb) return;
+    // Tenta achar pelo ID específico
+    let tb = document.getElementById('lista_programas');
+    
+    // FALLBACK: Se não achar, procura tbody na aba de programas
+    if(!tb) {
+        const tab = document.getElementById('conf-programas');
+        if(tab) tb = tab.querySelector('tbody');
+    }
+
+    if(!tb) {
+        console.warn("Tabela de programas não encontrada.");
+        return;
+    }
 
     tb.innerHTML = '<tr><td colspan="4" class="text-center">Carregando...</td></tr>';
 
     try {
         const l = await apiFetch('/config/programas/listar');
         
-        if(l && l.length > 0) {
+        if(l && Array.isArray(l) && l.length > 0) {
             tb.innerHTML = l.map(p => {
                 const dados = JSON.stringify(p).replace(/"/g, '&quot;');
                 return `
@@ -216,7 +241,7 @@ export function novoPrograma() {
         });
         modal.classList.add('show'); 
     } else {
-        alert("Modal de Programa não encontrado.");
+        alert("Erro: Modal de Programa (modal_programa_overlay) não encontrado.");
     }
 }
 
@@ -259,34 +284,39 @@ export async function excluirPrograma(id) {
 }
 
 // =============================================================================
-// 4. FORNECEDORES (Mantido caso a aba seja adicionada futuramente)
+// 4. FORNECEDORES
 // =============================================================================
 
 export async function carregarFornecedores() {
-    // Verifica se a tabela existe antes de tentar carregar
-    const tbWrapper = document.getElementById('tabela_fornecedores');
-    if(!tbWrapper) return; // Sai silenciosamente se a aba não existir no HTML
+    let tb = document.getElementById('tabela_fornecedores')?.querySelector('tbody');
+    
+    // Fallback
+    if(!tb) {
+         const tab = document.getElementById('conf-fornecedores');
+         if(tab) tb = tab.querySelector('tbody');
+    }
 
-    const tb = tbWrapper.querySelector('tbody');
     if(!tb) return;
 
-    const l = await apiFetch('/config/fornecedores/listar');
-    
-    tb.innerHTML = "";
-    if(l) {
-        tb.innerHTML = l.map(f => {
-            const dados = JSON.stringify(f).replace(/"/g, '&quot;');
-            return `
-            <tr>
-                <td>${f.cnpj}</td>
-                <td>${f.razao_social}</td>
-                <td style="display:flex; gap:5px;">
-                    <button class="btn-icon-small" title="Editar" onclick="editarFornecedor(${dados})"><i class="ph ph-pencil"></i></button>
-                    <button class="btn-icon-small" style="color:var(--danger); border-color:var(--danger)" title="Excluir" onclick="excluirFornecedor(${f.id})"><i class="ph ph-trash"></i></button>
-                </td>
-            </tr>`;
-        }).join('');
-    }
+    try {
+        const l = await apiFetch('/config/fornecedores/listar');
+        
+        tb.innerHTML = "";
+        if(l && Array.isArray(l)) {
+            tb.innerHTML = l.map(f => {
+                const dados = JSON.stringify(f).replace(/"/g, '&quot;');
+                return `
+                <tr>
+                    <td>${f.cnpj}</td>
+                    <td>${f.razao_social}</td>
+                    <td style="display:flex; gap:5px;">
+                        <button class="btn-icon-small" title="Editar" onclick="editarFornecedor(${dados})"><i class="ph ph-pencil"></i></button>
+                        <button class="btn-icon-small" style="color:var(--danger); border-color:var(--danger)" title="Excluir" onclick="excluirFornecedor(${f.id})"><i class="ph ph-trash"></i></button>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+    } catch(e) { console.error(e); }
 }
 
 export function abrirModalFornecedor() {
