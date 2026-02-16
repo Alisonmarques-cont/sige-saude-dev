@@ -10,7 +10,7 @@ class Database {
 
     // CONFIGURAÇÕES (AJUSTE CONFORME SEU AMBIENTE)
     private $host = 'localhost';
-    private $db_name = 'sige_saude';
+    private $db_name = 'sige_saude_dev';
     private $username = 'root';
     private $password = ''; // Insira a senha do banco se houver
 

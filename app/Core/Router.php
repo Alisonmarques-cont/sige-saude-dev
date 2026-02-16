@@ -1,133 +1,113 @@
 <?php
+
 namespace App\Core;
 
 class Router {
-    private $routes = [];
+    protected $routes = [];
 
     public function __construct() {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
+
+        // --- MAPA DE ROTAS CENTRALIZADO ---
         
-        // =============================================================
-        // DEFINIÇÃO DAS ROTAS DO SISTEMA
-        // =============================================================
+        // Autenticação e Dashboard
+        $this->add('/', 'Dashboard\Controllers\DashboardController', 'index');
+        $this->add('/login', 'Dashboard\Controllers\DashboardController', 'login');
+        $this->add('/api/auth/login', 'Dashboard\Controllers\DashboardController', 'apiLogin');
+        $this->add('/logout', 'Dashboard\Controllers\DashboardController', 'logout');
+        $this->add('/api/alertas', 'Dashboard\Controllers\AlertasController', 'getAlertas');
 
-        // --- DASHBOARD & AUTH ---
-        $this->add('GET', '/', 'Dashboard\Controllers\DashboardController@index');
-        $this->add('GET', '/login', 'Dashboard\Controllers\DashboardController@login');
-        $this->add('POST', '/api/auth/login', 'Dashboard\Controllers\DashboardController@autenticar');
-        $this->add('GET', '/logout', 'Dashboard\Controllers\DashboardController@logout');
+        // Financeiro
+        $this->add('/financeiro', 'Financeiro\Controllers\MovimentacaoController', 'index');
+        $this->add('/api/financeiro/movimentacoes', 'Financeiro\Controllers\MovimentacaoController', 'getMovimentacoes');
+        $this->add('/api/financeiro/movimentacao/salvar', 'Financeiro\Controllers\MovimentacaoController', 'salvar');
+        $this->add('/api/financeiro/movimentacao/excluir', 'Financeiro\Controllers\MovimentacaoController', 'excluir');
+        $this->add('/api/financeiro/livro-diario', 'Financeiro\Controllers\MovimentacaoController', 'getLivroDiario');
+        $this->add('/api/financeiro/fornecedores', 'Financeiro\Controllers\MovimentacaoController', 'getFornecedores');
+        $this->add('/api/financeiro/fornecedor/salvar', 'Financeiro\Controllers\MovimentacaoController', 'salvarFornecedor');
 
-        // --- FINANCEIRO: PÁGINAS (VIEWS) ---
-        $this->add('GET', '/financeiro', 'Financeiro\Controllers\MovimentacaoController@index'); 
-
-        // --- FINANCEIRO: EMPENHOS (API) ---
-        $this->add('GET', '/api/financeiro/empenhos/listar', 'Financeiro\Controllers\MovimentacaoController@listarEmpenhos');
-        $this->add('POST', '/api/financeiro/empenhos/salvar', 'Financeiro\Controllers\MovimentacaoController@salvarEmpenho');
-        $this->add('POST', '/api/financeiro/empenhos/pagar', 'Financeiro\Controllers\MovimentacaoController@pagarEmpenho');
-        $this->add('POST', '/api/financeiro/empenhos/excluir', 'Financeiro\Controllers\MovimentacaoController@excluirEmpenho');
-        $this->add('GET', '/api/financeiro/empenho/imprimir', 'Financeiro\Controllers\MovimentacaoController@imprimirEmpenho');
-        $this->add('GET', '/api/financeiro/empenhos/proximo-protocolo', 'Financeiro\Controllers\MovimentacaoController@getProximoProtocolo');
-
-        // --- FINANCEIRO: RECEITAS (API) ---
-        $this->add('GET', '/api/financeiro/receitas/listar', 'Financeiro\Controllers\MovimentacaoController@listarReceitas');
-        $this->add('POST', '/api/financeiro/receitas/salvar', 'Financeiro\Controllers\MovimentacaoController@salvarReceita');
-        $this->add('POST', '/api/financeiro/receitas/excluir', 'Financeiro\Controllers\MovimentacaoController@excluirReceita');
-
-        // --- FINANCEIRO: EXTRATO, LIVRO DIÁRIO & UTILITÁRIOS (API) ---
-        $this->add('GET', '/api/financeiro/lancamentos/listar', 'Financeiro\Controllers\MovimentacaoController@listarLancamentos');
-        $this->add('GET', '/api/financeiro/livro-diario/listar', 'Financeiro\Controllers\MovimentacaoController@listarLivroDiario'); // Rota Nova
-        $this->add('GET', '/financeiro/relatorio/imprimir', 'Financeiro\Controllers\MovimentacaoController@gerarRelatorioPDF');
-        $this->add('GET', '/api/financeiro/contratos/ativos', 'Financeiro\Controllers\MovimentacaoController@listarContratosAtivos');
-        $this->add('GET', '/api/financeiro/consolidado/diretas', 'Financeiro\Controllers\MovimentacaoController@getConsolidadoDiretas');
-        $this->add('GET', '/api/financeiro/fornecedores-com-contas', 'Config\Controllers\ConfigController@listarFornecedoresComContas'); 
+        // Contratos e Configurações
+        $this->add('/contratos', 'Contratos\Controllers\ContratosController', 'index');
+        $this->add('/api/contratos/lista', 'Contratos\Controllers\ContratosController', 'getContratos');
+        $this->add('/config', 'Config\Controllers\ConfigController', 'index');
+        $this->add('/api/config/programas', 'Config\Controllers\ConfigController', 'getProgramas');
+        $this->add('/api/config/programas/salvar', 'Config\Controllers\ConfigController', 'salvarPrograma');
+        $this->add('/api/config/programas/excluir', 'Config\Controllers\ConfigController', 'excluirPrograma');
         
-        // --- PLANEJAMENTO ---
-        $this->add('GET', '/planejamento', 'Planejamento\Controllers\PlanejamentoController@index');
-        $this->add('GET', '/api/planejamento/protocolos/buscar', 'Planejamento\Controllers\PlanejamentoController@buscarProtocolos');
-
-        // --- CONTRATOS ---
-        $this->add('GET', '/contratos', 'Contratos\Controllers\ContratosController@index');
-        $this->add('GET', '/api/contratos/listar', 'Contratos\Controllers\ContratosController@listar');
-        $this->add('POST', '/api/contratos/salvar', 'Contratos\Controllers\ContratosController@salvar');
-        $this->add('POST', '/api/contratos/excluir', 'Contratos\Controllers\ContratosController@excluir');
-        $this->add('GET', '/api/contratos/aditivos/listar', 'Contratos\Controllers\ContratosController@listarAditivos');
-        $this->add('POST', '/api/contratos/aditivos/salvar', 'Contratos\Controllers\ContratosController@salvarAditivo');
-
-        // --- CONFIGURAÇÕES ---
-        $this->add('GET', '/config', 'Config\Controllers\ConfigController@index');
-        $this->add('GET', '/api/config/programas/listar', 'Config\Controllers\ConfigController@listarProgramas');
-        $this->add('GET', '/api/config/contas/listar', 'Config\Controllers\ConfigController@listarContas');
-        $this->add('GET', '/api/config/fornecedores/listar', 'Config\Controllers\ConfigController@listarFornecedores');
+        // Planeamento
+        $this->add('/planejamento', 'Planejamento\Controllers\PlanejamentoController', 'index');
+        $this->add('/api/planejamento/pactuacoes', 'Planejamento\Controllers\PlanejamentoController', 'getPactuacoes');
     }
 
-    public function add($method, $path, $handler) {
-        $this->routes[] = [
-            'method' => $method,
-            'path'   => $path,
-            'handler' => $handler
+    public function add($uri, $controller, $method) {
+        $this->routes[$uri] = [
+            'controller' => $controller,
+            'method' => $method
         ];
     }
 
     public function dispatch($uri) {
-        // Normalização da URL
-        $scriptName = dirname($_SERVER['SCRIPT_NAME']);
-        if (strpos($uri, $scriptName) === 0) {
-            $uri = substr($uri, strlen($scriptName));
-        }
-        $uri = parse_url($uri, PHP_URL_PATH);
-        if ($uri == '' || $uri === false) $uri = '/';
+        // 1. Limpar Query Strings
+        $uri = explode('?', $uri)[0];
 
-        // --- SEGURANÇA OTIMIZADA ---
-        if ($uri !== '/login' && $uri !== '/api/auth/login' && !isset($_SESSION['usuario_id'])) {
-             // Como padronizamos tudo com /api/, esta verificação única cobre todos os módulos
-             if (strpos($uri, '/api/') === 0) {
-                 http_response_code(401);
-                 echo json_encode(['error' => 'Sessão expirada ou não autorizado']);
-                 return;
-             }
-             // Se não for API, manda para a tela de login
-             require_once __DIR__ . '/../Modules/Dashboard/Views/login.php';
-             return;
+        // 2. Lógica de Base Path Robusta
+        // Captura o diretório onde o index.php reside (ex: /sige-saude-dev/public)
+        $baseDir = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
+        
+        // Remove o baseDir da URI para isolar a rota pretendida
+        if ($baseDir !== '/' && strpos($uri, $baseDir) === 0) {
+            $uri = substr($uri, strlen($baseDir));
         }
 
-        if (($uri === '/login') && isset($_SESSION['usuario_id'])) {
-            header('Location: /');
-            return;
-        }
+        // 3. Normalização: Garante que a URI começa com / e não termina com /
+        $uri = '/' . trim($uri, '/');
 
-        $method = $_SERVER['REQUEST_METHOD'];
+        // 4. Verificação de existência da rota
+        if (array_key_exists($uri, $this->routes)) {
+            $route = $this->routes[$uri];
+            $controllerClass = "\\App\\Modules\\" . $route['controller'];
+            $methodName = $route['method'];
 
-        foreach ($this->routes as $route) {
-            if ($route['path'] == $uri && $route['method'] == $method) {
-                list($controller, $action) = explode('@', $route['handler']);
-                
-                $class = "App\\Modules\\$controller";
-                
-                if (class_exists($class)) {
-                    $object = new $class();
-                    if (method_exists($object, $action)) {
-                        return $object->$action();
-                    } else {
-                        http_response_code(500);
-                        echo "Erro Interno: Método '$action' não encontrado em $class.";
-                        return;
-                    }
+            // 5. Verificação de Autenticação (Acesso Público vs Privado)
+            $publicRoutes = ['/login', '/api/auth/login'];
+            $isAuthorized = isset($_SESSION['user_id']);
+
+            if (!$isAuthorized && !in_array($uri, $publicRoutes)) {
+                if (strpos($uri, '/api/') === 0) {
+                    header('Content-Type: application/json');
+                    http_response_code(401);
+                    echo json_encode(['error' => 'Sessão encerrada']);
+                    return;
                 }
-                
-                http_response_code(500);
-                echo "Erro Interno: Classe controladora não encontrada ($class).";
-                return;
+                header('Location: ' . rtrim($baseDir, '/') . '/login');
+                exit;
+            }
+
+            // 6. Execução do Controlador
+            if (class_exists($controllerClass)) {
+                $controller = new $controllerClass();
+                if (method_exists($controller, $methodName)) {
+                    return $controller->$methodName();
+                }
             }
         }
 
+        // Se chegou aqui, é 404
+        $this->handleNotFound($uri);
+    }
+
+    protected function handleNotFound($uri) {
         http_response_code(404);
-        echo "<div style='font-family:sans-serif; text-align:center; padding:50px;'>
-                <h1>404</h1>
-                <p>Página ou recurso não encontrado.</p>
-                <small>URI Solicitada: $uri</small>
-              </div>";
+        if (strpos($uri, '/api/') === 0) {
+            header('Content-Type: application/json');
+            echo json_encode([
+                'error' => 'Rota não encontrada',
+                'debug_uri' => $uri
+            ]);
+        } else {
+            echo "<h1>404</h1><p>A rota <strong>$uri</strong> não foi encontrada.</p>";
+        }
     }
 }
-?>
