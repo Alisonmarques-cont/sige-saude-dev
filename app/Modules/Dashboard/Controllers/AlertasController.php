@@ -7,7 +7,7 @@ use PDO;
 
 class AlertasController {
 
-    public function listar() {
+    public function getAlertas() {
         $db = Database::getInstance();
         $alertas = [];
 
