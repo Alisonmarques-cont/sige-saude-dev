@@ -1,0 +1,151 @@
+/* public/assets/css/modules/login.css */
+
+.login-page {
+    height: 100vh;
+    width: 100vw;
+    margin: 0;
+    display: flex;
+    overflow: hidden;
+    font-family: 'Inter', sans-serif;
+    background: var(--bg-body);
+}
+
+/* --- Lado Esquerdo: Branding (Identidade Visual) --- */
+.brand-section {
+    flex: 1; /* Ocupa metade da tela em desktops */
+    background-color: var(--primary); /* A mesma cor da sua sidebar interna */
+    /* Um degradê sutil para dar profundidade e modernidade */
+    background-image: linear-gradient(135deg, var(--primary) 0%, #1e293b 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    color: #ffffff;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Elemento decorativo de fundo (opcional, dá um toque tech) */
+.brand-section::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background-image: radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 30px 30px;
+    transform: rotate(15deg);
+    pointer-events: none;
+}
+
+.brand-content {
+    max-width: 480px;
+    text-align: center;
+    z-index: 2;
+}
+
+.brand-logo-container {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px; height: 80px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 20px;
+    margin-bottom: 32px;
+    box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2);
+}
+
+.brand-icon {
+    font-size: 3.5rem;
+    color: var(--accent); /* Azul destaque */
+}
+
+.brand-title {
+    font-size: 2.75rem;
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin-bottom: 16px;
+    line-height: 1.1;
+}
+.brand-title span { color: var(--accent); }
+
+.brand-tagline {
+    font-size: 1.1rem;
+    color: #cbd5e1; /* Slate 300 - legível no fundo escuro */
+    line-height: 1.6;
+}
+
+
+/* --- Lado Direito: Formulário --- */
+.form-section {
+    flex: 1; /* Ocupa a outra metade */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    background: var(--bg-body); /* Fundo claro padrão do sistema */
+}
+
+.form-wrapper {
+    width: 100%;
+    max-width: 420px;
+    /* Removemos o "card" fechado para ficar mais limpo no fundo claro */
+    padding: 20px;
+}
+
+.login-header { margin-bottom: 40px; }
+.login-title { font-size: 2rem; font-weight: 700; color: var(--primary); margin-bottom: 8px; letter-spacing: -0.5px; }
+.login-subtitle { font-size: 1rem; color: var(--text-muted); }
+
+.login-form-group { margin-bottom: 24px; }
+.login-form-group label { display: block; margin-bottom: 10px; font-weight: 600; color: var(--text-main); font-size: 0.9rem; }
+
+.input-with-icon { position: relative; }
+.input-with-icon .input-modern { padding-left: 44px; height: 50px; /* Inputs ligeiramente mais altos no login */ }
+.input-icon {
+    position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+    color: #94a3b8; font-size: 1.25rem; transition: color 0.2s;
+}
+/* Quando o input está focado, o ícone fica azul */
+.input-modern:focus + .input-icon, .input-modern:focus ~ .input-icon { color: var(--accent); }
+
+.btn-login {
+    width: 100%;
+    height: 50px;
+    font-size: 1rem;
+    justify-content: center;
+    font-weight: 600;
+    box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2); /* Sombra azul sutil */
+}
+
+.footer-login { margin-top: 40px; font-size: 0.85rem; color: var(--text-muted); text-align: center; }
+
+/* Mensagem de Erro */
+.error-msg {
+    background: #fef2f2; color: #b91c1c; padding: 14px; border-radius: 8px;
+    font-size: 0.9rem; border: 1px solid #fecaca; display: none; margin-bottom: 24px;
+    display: flex; align-items: center; gap: 10px; font-weight: 500;
+}
+
+/* --- Responsividade (Tablets e Celulares) --- */
+@media (max-width: 992px) {
+    .login-page { flex-direction: column; height: auto; min-height: 100vh; overflow-y: auto; }
+    
+    .brand-section {
+        flex: none; /* Não tenta ocupar metade */
+        padding: 50px 24px;
+        text-align: center;
+    }
+    .brand-logo-container { width: 60px; height: 60px; margin-bottom: 24px; }
+    .brand-icon { font-size: 2.5rem; }
+    .brand-title { font-size: 2rem; }
+    .brand-tagline { font-size: 1rem; }
+
+    .form-section {
+        flex: none;
+        padding: 40px 24px;
+        align-items: flex-start; /* Alinha ao topo no mobile */
+        background: #ffffff; /* Fundo branco puro no mobile para contraste */
+    }
+    .form-wrapper { max-width: none; padding: 0; }
+    .login-title { font-size: 1.75rem; }
+}

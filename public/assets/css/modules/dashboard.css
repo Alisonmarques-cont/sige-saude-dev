@@ -1,0 +1,270 @@
+/* ==========================================================================
+   MODULE: DASHBOARD
+   ========================================================================== */
+
+/* Grid de Resumo Financeiro (KPIs) */
+.saldo-grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+    gap: 24px; 
+}
+
+.saldo-item {
+    background: #fff;
+    padding: 24px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-top: 4px solid var(--border);
+}
+
+.saldo-item:nth-child(1) { border-top-color: var(--success); }
+.saldo-item:nth-child(2) { border-top-color: var(--danger); }
+.saldo-item.saldo-destaque { 
+    border-top-color: var(--primary); 
+    background: linear-gradient(to bottom right, #fff, #f8fafc); 
+}
+
+.saldo-label { 
+    font-size: 0.8rem; 
+    color: var(--text-muted); 
+    text-transform: uppercase; 
+    font-weight: 600; 
+    letter-spacing: 1px; 
+    margin-bottom: 8px; 
+}
+
+.saldo-valor { 
+    font-size: 1.75rem; 
+    font-weight: 700; 
+    color: var(--primary); 
+    letter-spacing: -1px; 
+}
+
+.positivo { color: var(--success); }
+.negativo { color: var(--danger); }
+
+/* ==========================================================================
+   LISTA DE CONTAS BANCÁRIAS (Account Rows)
+   ========================================================================== */
+.account-row {
+    background: #fff;
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow-sm);
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 0; 
+}
+
+.account-row:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.account-row::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+    background: var(--border); 
+}
+
+.account-row:nth-child(odd)::before { background: var(--primary); }
+.account-row:nth-child(even)::before { background: var(--accent); }
+
+.acc-info { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 2px; 
+    margin-left: 8px; 
+}
+
+.acc-bank { 
+    font-weight: 700; 
+    color: var(--primary); 
+    font-size: 0.9rem; 
+    display: flex; 
+    align-items: center; 
+    gap: 6px; 
+}
+
+.acc-desc { 
+    font-size: 0.75rem; 
+    color: var(--text-muted); 
+    font-weight: 500; 
+    text-transform: uppercase; 
+}
+
+.acc-val { 
+    font-weight: 700; 
+    color: var(--text-main); 
+    font-size: 1rem; 
+    white-space: nowrap; 
+    background: #f8fafc; 
+    padding: 4px 8px; 
+    border-radius: 6px; 
+    border: 1px solid var(--border); 
+}
+
+/* ==========================================================================
+   SISTEMA DE ALERTAS (SINO E DROPDOWN)
+   ========================================================================== */
+
+/* Wrapper do botão para posicionamento relativo do dropdown */
+.dash-notification-wrapper {
+    position: relative;
+}
+
+/* Botão do Sino */
+.btn-dash-bell {
+    width: 42px;
+    height: 42px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: #fff;
+    color: var(--text-muted);
+    font-size: 1.25rem;
+    cursor: pointer;
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.btn-dash-bell:hover {
+    background: #f8fafc;
+    color: var(--primary);
+    border-color: #cbd5e1;
+}
+
+/* Bolinha vermelha de contador */
+.dash-badge {
+    position: absolute;
+    top: -6px; 
+    right: -6px;
+    background: var(--danger);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    width: 18px; 
+    height: 18px;
+    border-radius: 50%;
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    border: 2px solid #fff;
+}
+
+/* Dropdown Flutuante */
+.dash-dropdown {
+    display: none;
+    position: absolute;
+    top: 50px; 
+    right: 0;
+    width: 340px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px -5px rgba(0,0,0,0.15), 0 8px 10px -6px rgba(0,0,0,0.1);
+    border: 1px solid var(--border);
+    z-index: 100;
+    animation: slideUp 0.2s ease-out;
+}
+
+.dash-dropdown.show { 
+    display: block; 
+}
+
+.dash-dropdown-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    font-weight: 600;
+    color: var(--primary);
+    font-size: 0.9rem;
+    background: #f8fafc;
+    border-radius: 12px 12px 0 0;
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+}
+
+.dash-dropdown-body {
+    max-height: 350px;
+    overflow-y: auto;
+}
+
+/* Item da lista de alertas */
+.dash-alert-item {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.dash-alert-item:last-child { 
+    border-bottom: none; 
+}
+
+.dash-alert-item:hover { 
+    background: #f8fafc; 
+}
+
+.dash-alert-icon {
+    font-size: 1.2rem;
+    margin-top: 2px;
+}
+
+.dash-alert-content h5 { 
+    font-size: 0.85rem; 
+    color: var(--text-main); 
+    font-weight: 600; 
+    margin-bottom: 2px; 
+}
+
+.dash-alert-content p { 
+    font-size: 0.8rem; 
+    color: var(--text-muted); 
+    line-height: 1.3; 
+}
+
+.dash-empty { 
+    padding: 30px 20px; 
+    text-align: center; 
+    color: var(--text-muted); 
+    font-size: 0.9rem; 
+    font-style: italic; 
+}
+
+/* Animação do Dropdown */
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==========================================================================
+   RESPONSIVIDADE
+   ========================================================================== */
+@media (max-width: 768px) {
+    .saldo-grid { 
+        grid-template-columns: 1fr; 
+    }
+    
+    /* Ajuste do dropdown em telas pequenas */
+    .dash-dropdown {
+        width: 300px;
+        right: -10px;
+    }
+}

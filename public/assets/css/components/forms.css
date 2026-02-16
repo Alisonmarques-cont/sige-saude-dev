@@ -1,0 +1,17 @@
+.form-row { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 20px; }
+.form-group { flex: 1; min-width: 220px; margin-bottom: 12px; }
+.form-group label { display: block; margin-bottom: 8px; font-weight: 500; font-size: 0.85rem; color: var(--text-main); }
+
+.input-modern {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 0.95rem;
+    color: var(--text-main);
+    transition: all 0.2s;
+    background: #fff;
+}
+.input-modern:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+.input-modern::placeholder { color: #cbd5e1; }
+.input-modern:disabled, .input-modern[readonly] { background: #f8fafc; color: var(--text-muted); cursor: not-allowed; }
