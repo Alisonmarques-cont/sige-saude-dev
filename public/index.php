@@ -1,45 +1,56 @@
 <?php
 
 /**
- * SIGE SAÚDE - Sistema de Gestão de Saúde
- * Ponto de entrada único da aplicação.
+ * SIGE SAÚDE - Front Controller
  */
 
-// Define o fuso horário para garantir precisão nos lançamentos financeiros
+// Configurações iniciais
 date_default_timezone_set('America/Recife');
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
-// Autoload das classes seguindo o padrão PSR-4
+// Autoloader Robusto (Corrige problemas de App vs app)
 spl_autoload_register(function ($class) {
-    $base_dir = __DIR__ . '/../';
-    $file = $base_dir . str_replace('\\', '/', $class) . '.php';
+    // Espaço de nomes prefixo
+    $prefix = 'App\\';
+    
+    // Diretório base para o prefixo (sai de public/ e entra em app/)
+    $base_dir = __DIR__ . '/../app/';
+
+    // Verifica se a classe usa o prefixo
+    $len = strlen($prefix);
+    if (strncmp($prefix, $class, $len) !== 0) {
+        return;
+    }
+
+    // Pega o nome relativo da classe
+    $relative_class = substr($class, $len);
+
+    // Substitui o prefixo namespace pelo diretório base, troca separadores namespace
+    // por separadores de diretório e adiciona .php
+    $file = $base_dir . str_replace('\\', '/', $relative_class) . '.php';
+
+    // Se o arquivo existir, carrega-o
     if (file_exists($file)) {
-        require_once $file;
+        require $file;
+    } else {
+        // Tenta depurar caso não encontre (útil para desenvolvimento)
+        // error_log("Autoloader: Não encontrou $file para a classe $class");
     }
 });
 
 use App\Core\Router;
 
 try {
-    // Inicializa o Roteador
-    // O construtor do Router agora centraliza todas as definições de rotas
     $router = new Router();
-
-    // Obtém a URI atual e despacha para o controlador correspondente
-    $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
     
-    // Executa a lógica de roteamento e segurança
-    $router->dispatch($uri);
+    // Passa a URI completa para o router tratar
+    $router->dispatch($_SERVER['REQUEST_URI']);
 
-} catch (\Exception $e) {
-    // Tratamento de erros críticos em ambiente de produção
-    error_log("Erro no Sistema: " . $e->getMessage());
-    
-    if (strpos($_SERVER['REQUEST_URI'], '/api/') !== false) {
-        header('Content-Type: application/json');
-        http_response_code(500);
-        echo json_encode(['error' => 'Ocorreu um erro interno no servidor.']);
-    } else {
-        http_response_code(500);
-        echo "<h1>Erro 500</h1><p>Infelizmente, ocorreu um erro inesperado. Por favor, tente novamente mais tarde.</p>";
-    }
+} catch (Exception $e) {
+    // Erro fatal
+    http_response_code(500);
+    echo "<h1>Erro Interno</h1>";
+    echo "<p>" . $e->getMessage() . "</p>";
 }

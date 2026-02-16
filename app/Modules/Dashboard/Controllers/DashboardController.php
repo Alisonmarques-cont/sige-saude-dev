@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Modules\Dashboard\Controllers;
 
 use App\Config\Database;
@@ -6,48 +7,107 @@ use PDO;
 
 class DashboardController {
     
+    /**
+     * Identifica a pasta raiz do projeto automaticamente.
+     * Ex: Converte '/' para '/sige-saude-dev/public' se necessário.
+     */
+    private function getBaseUrl() {
+        $base = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
+        return ($base === '/') ? '' : $base;
+    }
+
     // Rota: GET / (Carrega o painel principal)
     public function index() {
+        // Se não estiver logado, manda para o login (com o caminho correto)
+        if (!isset($_SESSION['user_id'])) {
+            header('Location: ' . $this->getBaseUrl() . '/login');
+            exit;
+        }
         require_once __DIR__ . '/../Views/main.php';
     }
 
     // Rota: GET /login (Carrega a tela de login)
     public function login() {
+        // Se já estiver logado, manda para o dashboard (com o caminho correto)
+        if (isset($_SESSION['user_id'])) {
+            header('Location: ' . $this->getBaseUrl() . '/');
+            exit;
+        }
         require_once __DIR__ . '/../Views/login.php';
     }
 
     // Rota: POST /api/auth/login (Processa a autenticação)
-    public function autenticar() {
+    public function apiLogin() {
         header('Content-Type: application/json');
         
-        // Pega os dados enviados em JSON
-        $input = file_get_contents('php://input');
-        $d = json_decode($input, true);
+        try {
+            $input = file_get_contents('php://input');
+            $d = json_decode($input, true);
 
-        if (!$d) {
-            http_response_code(400);
-            echo json_encode(['status' => 'error', 'message' => 'Dados inválidos.']);
-            return;
-        }
+            if (!$d || !isset($d['email']) || !isset($d['senha'])) {
+                http_response_code(400);
+                echo json_encode(['status' => 'error', 'message' => 'Dados incompletos.']);
+                return;
+            }
 
-        $db = Database::getInstance();
-        $stmt = $db->prepare("SELECT * FROM usuarios WHERE email = ? AND ativo = 1");
-        $stmt->execute([$d['email']]);
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            $db = Database::getInstance();
+            $stmt = $db->prepare("SELECT * FROM usuarios WHERE email = ? AND ativo = 1");
+            $stmt->execute([$d['email']]);
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($user && password_verify($d['senha'], $user['senha'])) {
-             // Regenera ID da sessão para segurança
-             session_regenerate_id(true); 
-             $_SESSION['usuario_id'] = $user['id'];
-             $_SESSION['usuario_nome'] = $user['nome'];
-             echo json_encode(['status' => 'ok']);
-        } else {
-            http_response_code(401);
-            echo json_encode(['status' => 'error', 'message' => 'Credenciais inválidas.']);
+            if ($user && password_verify($d['senha'], $user['senha'])) {
+                 session_regenerate_id(true); 
+                 
+                 $_SESSION['user_id'] = $user['id'];
+                 $_SESSION['user_nome'] = $user['nome'];
+                 $_SESSION['user_email'] = $user['email'];
+
+                 // CORREÇÃO CRÍTICA AQUI:
+                 // O redirect agora inclui a pasta do projeto
+                 echo json_encode([
+                     'status' => 'ok',
+                     'redirect' => $this->getBaseUrl() . '/', 
+                     'message' => 'Login realizado com sucesso!'
+                 ]);
+            } else {
+                http_response_code(401);
+                echo json_encode(['status' => 'error', 'message' => 'E-mail ou senha incorretos.']);
+            }
+        } catch (\Exception $e) {
+            http_response_code(500);
+            echo json_encode(['status' => 'error', 'message' => 'Erro interno: ' . $e->getMessage()]);
         }
     }
 
+    // Rota: GET /logout
+    public function logout() {
+        $_SESSION = array();
+
+        if (ini_get("session.use_cookies")) {
+            $params = session_get_cookie_params();
+            setcookie(session_name(), '', time() - 42000,
+                $params["path"], $params["domain"],
+                $params["secure"], $params["httponly"]
+            );
+        }
+
+        session_destroy();
+        
+        // Redireciona para o login (com o caminho correto)
+        header('Location: ' . $this->getBaseUrl() . '/login'); 
+        exit;
+    }
+
+    // API para buscar dados do Dashboard
     public function getDados() {
+        header('Content-Type: application/json');
+        
+        if (!isset($_SESSION['user_id'])) {
+            http_response_code(401);
+            echo json_encode(['error' => 'Não autorizado']);
+            return;
+        }
+
         $db = Database::getInstance();
         $response = [];
 
@@ -55,8 +115,6 @@ class DashboardController {
             // 1. Resumos Financeiros
             $ent = $db->query("SELECT COALESCE(SUM(valor), 0) FROM lancamentos WHERE tipo_movimento = 'Receita'")->fetchColumn();
             $sai = $db->query("SELECT COALESCE(SUM(valor), 0) FROM lancamentos WHERE tipo_movimento = 'Despesa'")->fetchColumn();
-            
-            // Cálculos
             $saldoAtual = $ent - $sai;
             
             $response['resumo'] = [
@@ -105,21 +163,11 @@ class DashboardController {
             }
             $response['contas'] = $saldos;
 
-            // OBS: O Sistema de Alertas foi movido para AlertasController para corrigir conflitos e erros SQL.
-
-            header('Content-Type: application/json');
             echo json_encode($response);
 
         } catch (\Exception $e) {
             http_response_code(500);
-            echo json_encode(['error' => $e->getMessage()]);
+            echo json_encode(['error' => 'Erro ao buscar dados: ' . $e->getMessage()]);
         }
     }
-
-    public function logout() {
-        session_destroy();
-        header('Location: /login'); 
-        exit;
-    }
 }
-?>

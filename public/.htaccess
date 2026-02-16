@@ -1,9 +1,12 @@
-Options -MultiViews
-RewriteEngine On
-
-# Permite acesso direto a arquivos existentes (CSS, JS, Imagens)
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_FILENAME} !-f
-
-# Todo o resto vai para o index.php
-RewriteRule ^ index.php [L]
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # Se o arquivo ou diretório existir, serve ele diretamente (assets, css, js)
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    
+    # Todo o resto vai para o index.php
+    RewriteRule ^ index.php [QSA,L]
+</IfModule>
+# Impede listagem de diretórios
+Options -Indexes
