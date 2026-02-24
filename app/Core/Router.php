@@ -27,7 +27,7 @@ class Router {
         // =========================================================================
         $this->add('/financeiro', 'Financeiro\Controllers\MovimentacaoController', 'index');
         
-        // Empenhos (Novas rotas específicas)
+        // Empenhos (Mantendo o padrão que o frontend já consome)
         $this->add('/api/financeiro/empenhos/listar', 'Financeiro\Controllers\MovimentacaoController', 'listarEmpenhos');
         $this->add('/api/financeiro/empenho/salvar', 'Financeiro\Controllers\MovimentacaoController', 'salvarEmpenho');
         $this->add('/api/financeiro/empenho/pagar', 'Financeiro\Controllers\MovimentacaoController', 'pagarEmpenho');
@@ -35,10 +35,10 @@ class Router {
         $this->add('/api/financeiro/empenhos/proximo-protocolo', 'Financeiro\Controllers\MovimentacaoController', 'getProximoProtocolo');
         $this->add('/api/financeiro/empenho/pdf', 'Financeiro\Controllers\MovimentacaoController', 'imprimirEmpenho');
         
-        // Receitas
+        // Receitas (CORREÇÃO: Padronizado para PLURAL para resolver o Erro 404)
         $this->add('/api/financeiro/receitas/listar', 'Financeiro\Controllers\MovimentacaoController', 'listarReceitas');
-        $this->add('/api/financeiro/receita/salvar', 'Financeiro\Controllers\MovimentacaoController', 'salvarReceita');
-        $this->add('/api/financeiro/receita/excluir', 'Financeiro\Controllers\MovimentacaoController', 'excluirReceita');
+        $this->add('/api/financeiro/receitas/salvar', 'Financeiro\Controllers\MovimentacaoController', 'salvarReceita');
+        $this->add('/api/financeiro/receitas/excluir', 'Financeiro\Controllers\MovimentacaoController', 'excluirReceita');
         
         // Extrato Bancário e Livro Diário
         $this->add('/api/financeiro/lancamentos/listar', 'Financeiro\Controllers\MovimentacaoController', 'listarLancamentos');
