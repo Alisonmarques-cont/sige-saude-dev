@@ -27,15 +27,15 @@ class Router {
         // =========================================================================
         $this->add('/financeiro', 'Financeiro\Controllers\MovimentacaoController', 'index');
         
-        // Empenhos (Mantendo o padrão que o frontend já consome)
+        // Empenhos (CORREÇÃO: Todas as rotas padronizadas para PLURAL)
         $this->add('/api/financeiro/empenhos/listar', 'Financeiro\Controllers\MovimentacaoController', 'listarEmpenhos');
-        $this->add('/api/financeiro/empenho/salvar', 'Financeiro\Controllers\MovimentacaoController', 'salvarEmpenho');
-        $this->add('/api/financeiro/empenho/pagar', 'Financeiro\Controllers\MovimentacaoController', 'pagarEmpenho');
-        $this->add('/api/financeiro/empenho/excluir', 'Financeiro\Controllers\MovimentacaoController', 'excluirEmpenho');
+        $this->add('/api/financeiro/empenhos/salvar', 'Financeiro\Controllers\MovimentacaoController', 'salvarEmpenho');
+        $this->add('/api/financeiro/empenhos/pagar', 'Financeiro\Controllers\MovimentacaoController', 'pagarEmpenho');
+        $this->add('/api/financeiro/empenhos/excluir', 'Financeiro\Controllers\MovimentacaoController', 'excluirEmpenho');
         $this->add('/api/financeiro/empenhos/proximo-protocolo', 'Financeiro\Controllers\MovimentacaoController', 'getProximoProtocolo');
-        $this->add('/api/financeiro/empenho/pdf', 'Financeiro\Controllers\MovimentacaoController', 'imprimirEmpenho');
+        $this->add('/api/financeiro/empenhos/pdf', 'Financeiro\Controllers\MovimentacaoController', 'imprimirEmpenho');
         
-        // Receitas (CORREÇÃO: Padronizado para PLURAL para resolver o Erro 404)
+        // Receitas (Já corrigidas para PLURAL)
         $this->add('/api/financeiro/receitas/listar', 'Financeiro\Controllers\MovimentacaoController', 'listarReceitas');
         $this->add('/api/financeiro/receitas/salvar', 'Financeiro\Controllers\MovimentacaoController', 'salvarReceita');
         $this->add('/api/financeiro/receitas/excluir', 'Financeiro\Controllers\MovimentacaoController', 'excluirReceita');
@@ -49,7 +49,7 @@ class Router {
         $this->add('/api/financeiro/contratos/ativos', 'Financeiro\Controllers\MovimentacaoController', 'listarContratosAtivos');
         $this->add('/api/financeiro/consolidado/diretas', 'Financeiro\Controllers\MovimentacaoController', 'getConsolidadoDiretas');
         
-        // [IMPORTANTE] Fornecedores com Contas (Lógica está no ConfigController)
+        // Fornecedores com Contas (Lógica está no ConfigController)
         $this->add('/api/financeiro/fornecedores-com-contas', 'Config\Controllers\ConfigController', 'listarFornecedoresComContas');
 
         // =========================================================================

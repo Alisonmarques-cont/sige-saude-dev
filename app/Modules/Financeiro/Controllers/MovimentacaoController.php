@@ -7,7 +7,7 @@ use Exception;
 
 /**
  * MovimentacaoController
- * Orquestrador Full-Stack Senior - Versão Corrigida e Segura.
+ * Orquestrador Full-Stack Senior - Versão Final.
  */
 class MovimentacaoController {
     private MovimentacaoService $service;
@@ -17,8 +17,6 @@ class MovimentacaoController {
         $this->service = new MovimentacaoService();
         $this->repository = new MovimentacaoRepository();
     }
-
-    // --- EMPENHOS ---
 
     public function listarEmpenhos(): void {
         $progId = !empty($_GET['programa_id']) && $_GET['programa_id'] !== 'todos' ? (int)$_GET['programa_id'] : null;
@@ -46,7 +44,7 @@ class MovimentacaoController {
             }
 
             if ($valor <= 0) throw new Exception("O valor total deve ser maior que zero.");
-            if (empty($credor)) throw new Exception("Fornecedor/Credor não identificado."); // Correção Crítica
+            if (empty($credor)) throw new Exception("Fornecedor/Credor não identificado.");
             
             $this->repository->salvarEmpenhoCompleto($data, $valor, $credor);
             echo json_encode(['status' => 'ok']);
@@ -73,12 +71,10 @@ class MovimentacaoController {
             $this->repository->deletarEmpenhoComLancamentos((int)$data['id']);
             echo json_encode(['status' => 'ok']);
         } catch (Exception $e) {
-            http_response_code(500); // Correção Crítica: Adicionado status 500
+            http_response_code(500);
             echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
         }
     }
-
-    // --- EXTRATOS E LIVRO DIÁRIO ---
 
     public function listarLancamentos(): void { $this->gerarExtratoConsolidado(false); }
     public function listarLivroDiario(): void { $this->gerarExtratoConsolidado(true); }
@@ -116,8 +112,6 @@ class MovimentacaoController {
         }
     }
 
-    // --- RECEITAS ---
-
     public function listarReceitas(): void {
         $progId = !empty($_GET['programa_id']) && $_GET['programa_id'] !== 'todos' ? (int)$_GET['programa_id'] : null;
         echo json_encode($this->repository->buscarReceitas($progId));
@@ -140,12 +134,10 @@ class MovimentacaoController {
             $this->repository->deletarReceitaComLancamentos((int)$data['id']);
             echo json_encode(['status' => 'ok']);
         } catch (Exception $e) {
-            http_response_code(500); // Correção Crítica: Adicionado status 500
+            http_response_code(500);
             echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
         }
     }
-
-    // --- MÉTODOS AUXILIARES E RELATÓRIOS ---
 
     public function listarContratosAtivos(): void {
         echo json_encode($this->repository->buscarContratosAtivos());
@@ -166,12 +158,10 @@ class MovimentacaoController {
         $tipo = $_GET['tipo'] ?? '';
         $dados = [];
         
-        // Correção Crítica: Reversão para a lógica original segura para o relatório
         if ($tipo === 'livro_diario') {
             ob_start();
             $this->listarLivroDiario();
             $json = ob_get_clean();
-            
             $res = json_decode($json, true);
             $dados = $res['itens'] ?? [];
         } 
