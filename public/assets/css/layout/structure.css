@@ -153,3 +153,43 @@
     color: var(--text-muted);
     font-size: 0.9rem;
 }
+
+/* ========================================= */
+/* SELETOR DE EXERCÍCIO (TOPBAR)             */
+/* ========================================= */
+.exercicio-wrapper {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    padding: 6px 14px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-right: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    transition: all 0.2s ease;
+}
+
+.exercicio-wrapper:hover {
+    border-color: var(--primary-color);
+}
+
+.exercicio-icon {
+    font-size: 1.2rem;
+    color: var(--primary-color);
+}
+
+.exercicio-select {
+    border: none;
+    background: transparent;
+    font-weight: 700;
+    color: var(--text-color);
+    outline: none;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-family: inherit;
+}
+
+.exercicio-select:focus {
+    outline: none;
+}
