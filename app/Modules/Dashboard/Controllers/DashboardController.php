@@ -18,13 +18,13 @@ class DashboardController {
 
     // Rota: GET / (Carrega o painel principal)
     public function index() {
-        // Se não estiver logado, manda para o login
+        // Se não estiver logado, manda para o login (com o caminho correto)
         if (!isset($_SESSION['user_id'])) {
             header('Location: ' . $this->getBaseUrl() . '/login');
             exit;
         }
         
-        // Garante que exista um exercício selecionado caso tenha passado direto
+        // Garante que exista um exercício selecionado caso tenha passado direto pela sessão
         if (!isset($_SESSION['ano_exercicio'])) {
             $_SESSION['ano_exercicio'] = date('Y');
         }
@@ -34,7 +34,7 @@ class DashboardController {
 
     // Rota: GET /login (Carrega a tela de login)
     public function login() {
-        // Se já estiver logado, manda para o dashboard
+        // Se já estiver logado, manda para o dashboard (com o caminho correto)
         if (isset($_SESSION['user_id'])) {
             header('Location: ' . $this->getBaseUrl() . '/');
             exit;
@@ -71,6 +71,7 @@ class DashboardController {
                  // DEFINIÇÃO DO EXERCÍCIO ATUAL NO LOGIN
                  $_SESSION['ano_exercicio'] = date('Y'); 
 
+                 // O redirect agora inclui a pasta do projeto
                  echo json_encode([
                      'status' => 'ok',
                      'redirect' => $this->getBaseUrl() . '/', 
@@ -100,12 +101,12 @@ class DashboardController {
 
         session_destroy();
         
-        // Redireciona para o login
+        // Redireciona para o login (com o caminho correto)
         header('Location: ' . $this->getBaseUrl() . '/login'); 
         exit;
     }
 
-    // API para buscar dados do Dashboard (Refatorada com isolamento por Exercício)
+    // API para buscar dados do Dashboard
     public function getDados() {
         header('Content-Type: application/json');
         
@@ -118,7 +119,7 @@ class DashboardController {
         $db = Database::getInstance();
         $response = [];
         
-        // Resgata o exercício atual da sessão de forma segura
+        // Resgata o exercício atual da sessão de forma segura (Fallback para o ano atual)
         $ano = intval($_SESSION['ano_exercicio'] ?? date('Y'));
 
         try {
@@ -151,7 +152,7 @@ class DashboardController {
             ";
             
             $stmtProg = $db->prepare($sqlProgramas);
-            // Usando named parameters repetidos de forma segura
+            // Executa injetando o ano de forma segura nas subqueries
             $stmtProg->execute(['ano1' => $ano, 'ano2' => $ano]);
             $programas = $stmtProg->fetchAll(PDO::FETCH_ASSOC);
             
@@ -171,7 +172,7 @@ class DashboardController {
             $contas = $db->query("SELECT * FROM contas_bancarias_entidade")->fetchAll(PDO::FETCH_ASSOC);
             $saldos = [];
             
-            // Preparar as queries fora do loop para otimização de performance (Prática de Senior)
+            // Preparar as queries FORA do loop para otimização e prevenção de SQL Injection
             $stmtBancoEnt = $db->prepare("SELECT COALESCE(SUM(valor), 0) FROM lancamentos WHERE conta_bancaria_id = :conta_id AND tipo_movimento = 'Receita' AND ano_exercicio = :ano");
             $stmtBancoSai = $db->prepare("SELECT COALESCE(SUM(valor), 0) FROM lancamentos WHERE conta_bancaria_id = :conta_id AND tipo_movimento = 'Despesa' AND ano_exercicio = :ano");
 
@@ -182,8 +183,7 @@ class DashboardController {
                 $stmtBancoSai->execute(['conta_id' => $c['id'], 'ano' => $ano]);
                 $s = $stmtBancoSai->fetchColumn();
                 
-                // Nota arquitetural: Se quiser que o saldo bancário traga o acumulado histórico + saldo_inicial independente de ano,
-                // basta removermos o 'AND ano_exercicio = :ano' destas duas queries específicas futuramente.
+                // O saldo soma-se ao valor inicial global da conta
                 $saldoConta = $c['saldo_inicial'] + $e - $s;
 
                 $saldos[] = [
