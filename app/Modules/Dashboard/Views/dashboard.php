@@ -6,8 +6,22 @@
         </div>
         
         <div style="display:flex; align-items:center; gap:12px;">
-            <div class="status-badge" style="font-size: 0.9rem; padding: 8px 16px; background: #fff; border: 1px solid var(--border); color: var(--text-main);">
+            
+            <div class="status-badge" style="font-size: 0.9rem; padding: 8px 16px; background: #fff; border: 1px solid var(--border); color: var(--text-main); border-radius: 8px;">
                 <i class="ph ph-calendar-blank"></i> <span id="current_date">Carregando...</span>
+            </div>
+
+            <div class="status-badge" style="font-size: 0.9rem; padding: 6px 16px; background: #fff; border: 1px solid var(--border); color: var(--text-main); border-radius: 8px; display:flex; align-items:center;">
+                <select id="seletor_ano_dash" onchange="mudarAnoExercicioDash(this.value)" style="border:none; outline:none; background:transparent; font-weight:600; color:var(--text-main); cursor:pointer; font-family:inherit;">
+                    <?php 
+                        $anoAtualSessao = isset($_SESSION['ano_exercicio']) ? $_SESSION['ano_exercicio'] : date('Y');
+                        $anos = [date('Y')-1, date('Y'), date('Y')+1, date('Y')+2];
+                        foreach ($anos as $a) {
+                            $selected = ($a == $anoAtualSessao) ? 'selected' : '';
+                            echo "<option value='{$a}' {$selected}>Exercício {$a}</option>";
+                        }
+                    ?>
+                </select>
             </div>
 
             <div class="dash-notification-wrapper">
@@ -22,9 +36,10 @@
                         <i class="ph ph-x" onclick="toggleDashAlertas()" style="cursor:pointer; opacity:0.6"></i>
                     </div>
                     <div class="dash-dropdown-body" id="lista_dash_alertas">
-                        </div>
+                    </div>
                 </div>
             </div>
+
         </div>
     </div>
     
@@ -55,3 +70,37 @@
         <div id="chart_programas" style="min-height: 350px;"></div>
     </div>
 </section>
+
+<script>
+async function mudarAnoExercicioDash(ano) {
+    try {
+        const seletor = document.getElementById('seletor_ano_dash');
+        seletor.disabled = true; 
+        seletor.style.opacity = '0.5';
+
+        const basePath = window.location.pathname.includes('/public') 
+                        ? window.location.origin + window.location.pathname.split('/public')[0] + '/public'
+                        : window.location.origin;
+
+        const response = await fetch(basePath + '/api/config/mudar-ano', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify({ ano: ano })
+        });
+
+        const data = await response.json();
+        
+        if (data.status === 'ok') {
+            window.location.reload(); 
+        } else {
+            alert('Erro: ' + (data.message || 'Desconhecido.'));
+            seletor.disabled = false; seletor.style.opacity = '1';
+        }
+    } catch (error) {
+        console.error('Erro:', error);
+        alert('Falha na comunicação.');
+        document.getElementById('seletor_ano_dash').disabled = false;
+        document.getElementById('seletor_ano_dash').style.opacity = '1';
+    }
+}
+</script>

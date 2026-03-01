@@ -1,7 +1,7 @@
 .content-wrapper {
     flex: 1;
     margin-left: var(--sidebar-width);
-    padding: 32px 40px;
+    padding: 100px 40px 40px 40px; 
     overflow-y: auto;
     height: 100%;
     transition: margin-left 0.3s;
@@ -42,21 +42,68 @@
 
 /* Responsivo Layout */
 @media (max-width: 768px) {
-    .content-wrapper { margin-left: 0; padding: 20px; margin-top: 60px; }
+    .content-wrapper { margin-left: 0; padding: 130px 20px 20px 20px; margin-top: 0; }
     .mobile-header-bar { display: flex; }
-    .header { flex-direction: column; align-items: flex-start; gap: 12px; margin-bottom: 24px; }
+    .header { flex-direction: column; align-items: flex-start; gap: 12px; margin-bottom: 24px; padding-right: 0; }
+    
+    .topbar-actions {
+        top: 60px !important;
+        left: 0 !important; 
+        right: 0 !important;
+        width: 100% !important;
+        height: 60px !important;
+        padding: 0 20px !important;
+        border-radius: 0 !important;
+        border-bottom: 1px solid var(--border) !important;
+    }
 }
 
 @media print {
-    .sidebar, .mobile-header-bar { display: none !important; }
+    .sidebar, .mobile-header-bar, .topbar-actions { display: none !important; }
     .content-wrapper { margin: 0; padding: 0; overflow: visible; }
     body { background: #fff; height: auto; overflow: visible; }
     .page { display: block !important; }
 }
-/* Notificações */
+
+/* ========================================= */
+/* BARRA SUPERIOR GLOBAL (CANTO A CANTO)     */
+/* ========================================= */
+.topbar-actions {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: var(--sidebar-width); 
+    height: 70px; 
+    
+    background-color: var(--bg-card); 
+    border-bottom: 1px solid var(--border); 
+    /* TOQUE PREMIUM: Uma sombra levíssima para dar efeito de profundidade ao scroll */
+    box-shadow: 0 2px 10px rgba(0,0,0,0.02); 
+    
+    padding: 0 40px; 
+    z-index: 1000;
+    
+    display: flex;
+    align-items: center;
+    justify-content: flex-end; 
+    transition: left 0.3s; 
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px; /* Ligeiramente mais espaço para respirar */
+    cursor: pointer;
+    position: relative;
+    padding-left: 20px;
+    border-left: 1px solid var(--border); 
+}
+
+/* ========================================= */
+/* NOTIFICAÇÕES E DROPDOWNS (MANTIDOS SEGUROS)*/
+/* ========================================= */
 .notification-wrapper {
     position: relative;
-    margin-right: 15px;
 }
 
 .notification-badge {
@@ -76,19 +123,22 @@
     border: 2px solid white;
 }
 
-/* Dropdown */
 .dropdown-menu-alertas {
     display: none;
     position: absolute;
     right: 0;
-    top: 120%;
+    top: calc(100% + 20px); 
     width: 320px;
-    background: white;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-md);
     z-index: 1000;
     overflow: hidden;
+}
+
+#dropdown_perfil.dropdown-menu-alertas {
+    width: 220px; /* Alargado ligeiramente para textos de perfil não quebrarem a linha */
 }
 
 .dropdown-menu-alertas.show {
@@ -97,8 +147,8 @@
 
 .dropdown-header {
     padding: 10px 15px;
-    background: var(--bg-light);
-    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-body);
+    border-bottom: 1px solid var(--border);
     font-weight: 600;
     font-size: 0.85rem;
     color: var(--text-muted);
@@ -113,7 +163,7 @@
 }
 
 .alerta-item {
-    border-bottom: 1px solid var(--border-light);
+    border-bottom: 1px solid var(--border);
 }
 
 .alerta-item:last-child {
@@ -131,6 +181,7 @@
 
 .alerta-link:hover {
     background-color: var(--bg-body);
+    color: var(--primary); /* Hover com cor primária para maior requinte */
 }
 
 .alerta-title {
@@ -155,41 +206,44 @@
 }
 
 /* ========================================= */
-/* SELETOR DE EXERCÍCIO (TOPBAR)             */
+/* SELETOR DE EXERCÍCIO (MANTIDO SEGURO)     */
 /* ========================================= */
 .exercicio-wrapper {
-    background-color: var(--bg-card);
-    border: 1px solid var(--border-color);
-    padding: 6px 14px;
-    border-radius: 8px;
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-right: 20px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    transition: all 0.2s ease;
+    gap: 6px;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 6px 12px;
+    border-radius: var(--radius);
+    transition: all 0.2s;
 }
 
 .exercicio-wrapper:hover {
-    border-color: var(--primary-color);
+    border-color: var(--text-muted);
 }
 
 .exercicio-icon {
-    font-size: 1.2rem;
-    color: var(--primary-color);
+    font-size: 1.1rem;
+    color: var(--text-muted);
 }
 
 .exercicio-select {
     border: none;
     background: transparent;
-    font-weight: 700;
-    color: var(--text-color);
-    outline: none;
+    font-weight: 600;
+    color: var(--text-main);
+    font-size: 0.85rem;
     cursor: pointer;
-    font-size: 0.95rem;
-    font-family: inherit;
+    outline: none;
+    padding: 0;
 }
 
-.exercicio-select:focus {
-    outline: none;
+@media (max-width: 768px) {
+    .exercicio-wrapper {
+        padding: 4px 8px;
+    }
+    .exercicio-select {
+        font-size: 0.8rem;
+    }
 }
