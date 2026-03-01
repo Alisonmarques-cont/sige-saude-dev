@@ -147,5 +147,48 @@ class ConfigController {
         header('Content-Disposition: attachment; filename="backup_sigesaude.sql"');
         echo $sqlScript;
     }
+
+    // =========================================================================
+    // --- GESTÃO DE CONTEXTO GLOBAL (NOVO) ---
+    // =========================================================================
+    
+    /**
+     * Rota: POST /api/config/mudar-ano
+     * Altera o ano de exercício atual na sessão do utilizador.
+     */
+    public function mudarAno() {
+        header('Content-Type: application/json');
+        
+        // 1. Camada de Segurança: Garantir que apenas utilizadores logados podem alterar o contexto
+        if (!isset($_SESSION['user_id'])) {
+            http_response_code(401);
+            echo json_encode(['status' => 'error', 'message' => 'Acesso não autorizado.']);
+            return;
+        }
+
+        try {
+            // 2. Receber o payload JSON enviado pelo Fetch API do frontend
+            $input = json_decode(file_get_contents('php://input'), true);
+            
+            // 3. Validação rigorosa do tipo de dado (evitar injeção de strings ou dados nulos)
+            if (isset($input['ano']) && is_numeric($input['ano']) && strlen((string)$input['ano']) === 4) {
+                
+                // 4. Atualização da Sessão
+                $_SESSION['ano_exercicio'] = intval($input['ano']);
+                
+                echo json_encode([
+                    'status' => 'ok', 
+                    'ano_atual' => $_SESSION['ano_exercicio'],
+                    'message' => 'Exercício alterado com sucesso.'
+                ]);
+            } else {
+                http_response_code(400);
+                echo json_encode(['status' => 'error', 'message' => 'Ano não informado ou formato inválido.']);
+            }
+        } catch (\Exception $e) {
+            http_response_code(500);
+            echo json_encode(['status' => 'error', 'message' => 'Erro interno ao mudar o exercício: ' . $e->getMessage()]);
+        }
+    }
 }
 ?>

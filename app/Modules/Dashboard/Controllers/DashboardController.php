@@ -18,17 +18,23 @@ class DashboardController {
 
     // Rota: GET / (Carrega o painel principal)
     public function index() {
-        // Se não estiver logado, manda para o login (com o caminho correto)
+        // Se não estiver logado, manda para o login
         if (!isset($_SESSION['user_id'])) {
             header('Location: ' . $this->getBaseUrl() . '/login');
             exit;
         }
+        
+        // Garante que exista um exercício selecionado caso tenha passado direto
+        if (!isset($_SESSION['ano_exercicio'])) {
+            $_SESSION['ano_exercicio'] = date('Y');
+        }
+
         require_once __DIR__ . '/../Views/main.php';
     }
 
     // Rota: GET /login (Carrega a tela de login)
     public function login() {
-        // Se já estiver logado, manda para o dashboard (com o caminho correto)
+        // Se já estiver logado, manda para o dashboard
         if (isset($_SESSION['user_id'])) {
             header('Location: ' . $this->getBaseUrl() . '/');
             exit;
@@ -61,9 +67,10 @@ class DashboardController {
                  $_SESSION['user_id'] = $user['id'];
                  $_SESSION['user_nome'] = $user['nome'];
                  $_SESSION['user_email'] = $user['email'];
+                 
+                 // DEFINIÇÃO DO EXERCÍCIO ATUAL NO LOGIN
+                 $_SESSION['ano_exercicio'] = date('Y'); 
 
-                 // CORREÇÃO CRÍTICA AQUI:
-                 // O redirect agora inclui a pasta do projeto
                  echo json_encode([
                      'status' => 'ok',
                      'redirect' => $this->getBaseUrl() . '/', 
@@ -93,12 +100,12 @@ class DashboardController {
 
         session_destroy();
         
-        // Redireciona para o login (com o caminho correto)
+        // Redireciona para o login
         header('Location: ' . $this->getBaseUrl() . '/login'); 
         exit;
     }
 
-    // API para buscar dados do Dashboard
+    // API para buscar dados do Dashboard (Refatorada com isolamento por Exercício)
     public function getDados() {
         header('Content-Type: application/json');
         
@@ -110,11 +117,20 @@ class DashboardController {
 
         $db = Database::getInstance();
         $response = [];
+        
+        // Resgata o exercício atual da sessão de forma segura
+        $ano = intval($_SESSION['ano_exercicio'] ?? date('Y'));
 
         try {
-            // 1. Resumos Financeiros
-            $ent = $db->query("SELECT COALESCE(SUM(valor), 0) FROM lancamentos WHERE tipo_movimento = 'Receita'")->fetchColumn();
-            $sai = $db->query("SELECT COALESCE(SUM(valor), 0) FROM lancamentos WHERE tipo_movimento = 'Despesa'")->fetchColumn();
+            // 1. Resumos Financeiros do Exercício
+            $stmtEnt = $db->prepare("SELECT COALESCE(SUM(valor), 0) FROM lancamentos WHERE tipo_movimento = 'Receita' AND ano_exercicio = :ano");
+            $stmtEnt->execute(['ano' => $ano]);
+            $ent = $stmtEnt->fetchColumn();
+
+            $stmtSai = $db->prepare("SELECT COALESCE(SUM(valor), 0) FROM lancamentos WHERE tipo_movimento = 'Despesa' AND ano_exercicio = :ano");
+            $stmtSai->execute(['ano' => $ano]);
+            $sai = $stmtSai->fetchColumn();
+            
             $saldoAtual = $ent - $sai;
             
             $response['resumo'] = [
@@ -124,16 +140,20 @@ class DashboardController {
                 'saldo_disponivel'=> (float)$saldoAtual
             ];
 
-            // 2. Gráfico: Saldo por Programa
+            // 2. Gráfico: Saldo por Programa no Exercício
             $sqlProgramas = "
                 SELECT 
                     p.nome_programa,
-                    (SELECT COALESCE(SUM(valor), 0) FROM lancamentos WHERE programa_id = p.id AND tipo_movimento = 'Receita') as receitas,
-                    (SELECT COALESCE(SUM(valor), 0) FROM lancamentos WHERE programa_id = p.id AND tipo_movimento = 'Despesa') as despesas
+                    (SELECT COALESCE(SUM(valor), 0) FROM lancamentos WHERE programa_id = p.id AND tipo_movimento = 'Receita' AND ano_exercicio = :ano1) as receitas,
+                    (SELECT COALESCE(SUM(valor), 0) FROM lancamentos WHERE programa_id = p.id AND tipo_movimento = 'Despesa' AND ano_exercicio = :ano2) as despesas
                 FROM programas_fontes p
                 WHERE p.ativo = 1
             ";
-            $programas = $db->query($sqlProgramas)->fetchAll(PDO::FETCH_ASSOC);
+            
+            $stmtProg = $db->prepare($sqlProgramas);
+            // Usando named parameters repetidos de forma segura
+            $stmtProg->execute(['ano1' => $ano, 'ano2' => $ano]);
+            $programas = $stmtProg->fetchAll(PDO::FETCH_ASSOC);
             
             $chartData = [];
             foreach($programas as $p) {
@@ -147,18 +167,30 @@ class DashboardController {
             }
             $response['grafico_programas'] = $chartData;
 
-            // 3. Saldos Bancários
+            // 3. Saldos Bancários (Movimentação do Exercício)
             $contas = $db->query("SELECT * FROM contas_bancarias_entidade")->fetchAll(PDO::FETCH_ASSOC);
             $saldos = [];
+            
+            // Preparar as queries fora do loop para otimização de performance (Prática de Senior)
+            $stmtBancoEnt = $db->prepare("SELECT COALESCE(SUM(valor), 0) FROM lancamentos WHERE conta_bancaria_id = :conta_id AND tipo_movimento = 'Receita' AND ano_exercicio = :ano");
+            $stmtBancoSai = $db->prepare("SELECT COALESCE(SUM(valor), 0) FROM lancamentos WHERE conta_bancaria_id = :conta_id AND tipo_movimento = 'Despesa' AND ano_exercicio = :ano");
+
             foreach($contas as $c) {
-                $e = $db->query("SELECT COALESCE(SUM(valor), 0) FROM lancamentos WHERE conta_bancaria_id = {$c['id']} AND tipo_movimento = 'Receita'")->fetchColumn();
-                $s = $db->query("SELECT COALESCE(SUM(valor), 0) FROM lancamentos WHERE conta_bancaria_id = {$c['id']} AND tipo_movimento = 'Despesa'")->fetchColumn();
+                $stmtBancoEnt->execute(['conta_id' => $c['id'], 'ano' => $ano]);
+                $e = $stmtBancoEnt->fetchColumn();
+
+                $stmtBancoSai->execute(['conta_id' => $c['id'], 'ano' => $ano]);
+                $s = $stmtBancoSai->fetchColumn();
                 
+                // Nota arquitetural: Se quiser que o saldo bancário traga o acumulado histórico + saldo_inicial independente de ano,
+                // basta removermos o 'AND ano_exercicio = :ano' destas duas queries específicas futuramente.
+                $saldoConta = $c['saldo_inicial'] + $e - $s;
+
                 $saldos[] = [
                     'banco' => $c['banco'],
                     'conta' => $c['conta'],
                     'descricao' => $c['descricao'],
-                    'saldo' => number_format(($c['saldo_inicial'] + $e - $s), 2, ',', '.')
+                    'saldo' => number_format($saldoConta, 2, ',', '.')
                 ];
             }
             $response['contas'] = $saldos;

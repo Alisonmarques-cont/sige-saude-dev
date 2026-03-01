@@ -100,6 +100,9 @@ class Router {
         $this->add('/api/config/fornecedores/salvar', 'Config\Controllers\ConfigController', 'salvarFornecedor');
         $this->add('/api/config/fornecedores/excluir', 'Config\Controllers\ConfigController', 'excluirFornecedor');
         $this->add('/api/config/fornecedores/conta/salvar', 'Config\Controllers\ConfigController', 'salvarContaFornecedor');
+        
+        // Alteração de Exercício Global
+        $this->add('/api/config/mudar-ano', 'Config\Controllers\ConfigController', 'mudarAno');
     }
 
     // --- LÓGICA DO ROTEADOR ---
