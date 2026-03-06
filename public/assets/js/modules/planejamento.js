@@ -1,5 +1,6 @@
 import { apiFetch } from '../core/api.js';
 import { showToast } from '../core/utils.js';
+import { buscarInstrumentosGestao } from './planejamento/instrumentosgestao.js';
 
 // Função para alternar abas (Exposta no window para funcionar no onclick)
 window.alternarAbaPlanejamento = function(abaId, btn) {
@@ -16,6 +17,11 @@ window.alternarAbaPlanejamento = function(abaId, btn) {
     if(alvo) alvo.style.display = 'block';
     
     if(btn) btn.classList.add('active');
+
+    // 4.Se a aba selecionada for a de obrigações, dispara o Fetch!
+    if (abaId === 'aba_plan_obrigacoes') {
+        buscarInstrumentosGestao();
+    }
 }
 
 // Função de Busca

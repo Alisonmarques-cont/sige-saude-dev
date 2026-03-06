@@ -137,6 +137,31 @@ CREATE TABLE IF NOT EXISTS usuarios (
     ativo TINYINT(1) DEFAULT 1
 );
 
+-- 13. Instrumentos de Gestão (Planejamento SUS)
+CREATE TABLE IF NOT EXISTS `planejamento_instrumentos` (
+    `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `sigla` VARCHAR(50) NOT NULL,
+    `nome` VARCHAR(255) NOT NULL,
+    `periodicidade` ENUM('Quadrienal', 'Anual', 'Quadrimestral', 'Mensal') NOT NULL,
+    `prazo_legal` VARCHAR(255) NOT NULL,
+    `ano_referencia` YEAR NOT NULL,
+    `data_limite` DATE NULL DEFAULT NULL,
+    `status` ENUM('Vigente', 'Em Elaboração', 'Aberto', 'Entregue', 'Aguardando', 'Atrasado', 'Bloqueado') NOT NULL DEFAULT 'Aguardando',
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    INDEX `idx_ano_referencia` (`ano_referencia`),
+    INDEX `idx_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO `planejamento_instrumentos` (`sigla`, `nome`, `periodicidade`, `prazo_legal`, `ano_referencia`, `status`) VALUES
+('PMS', 'Plano Municipal de Saúde', 'Quadrienal', 'No 1º ano da gestão.', 2024, 'Vigente'),
+('PAS', 'Programação Anual de Saúde', 'Anual', 'Fim do ano anterior à vigência.', 2024, 'Em Elaboração'),
+('RAG', 'Relatório Anual de Gestão', 'Anual', 'Até 30 de março do ano seguinte.', 2024, 'Aberto'),
+('1º Quad.', 'Relatório Detalhado (RDQA)', 'Quadrimestral', 'Até o final de Maio.', 2024, 'Entregue'),
+('2º Quad.', 'Relatório Detalhado (RDQA)', 'Quadrimestral', 'Até o final de Setembro.', 2024, 'Aguardando'),
+('3º Quad.', 'Relatório Detalhado (RDQA)', 'Quadrimestral', 'Até Fevereiro do ano seguinte.', 2024, 'Bloqueado');
+
 -- INSERIR ADMIN (Senha: admin123)
 -- O hash abaixo corresponde exatamente a 'admin123'
 INSERT INTO usuarios (id, nome, email, senha, ativo) 

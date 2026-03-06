@@ -68,13 +68,21 @@ class Router {
         $this->add('/api/contratos/detalhes', 'Contratos\Controllers\ContratosController', 'getContrato');
         $this->add('/api/contratos/excluir', 'Contratos\Controllers\ContratosController', 'excluir');
 
+       // =========================================================================
+        // 4. MÓDULO PLANEJAMENTO (PlanejamentoController & InstrumentosGestaoController)
         // =========================================================================
-        // 4. MÓDULO PLANEJAMENTO (PlanejamentoController)
-        // =========================================================================
+        
+        // Rotas de View (Página Principal)
         $this->add('/planejamento', 'Planejamento\Controllers\PlanejamentoController', 'index');
+        
+        // Rotas de API - Pactuações
         $this->add('/api/planejamento/pactuacoes', 'Planejamento\Controllers\PlanejamentoController', 'getPactuacoes');
         $this->add('/api/planejamento/pactuacao/salvar', 'Planejamento\Controllers\PlanejamentoController', 'salvar');
         $this->add('/api/planejamento/pactuacao/excluir', 'Planejamento\Controllers\PlanejamentoController', 'excluir');
+
+        // Rotas de API - Instrumentos de Gestão
+        $this->add('/api/planejamento/instrumentos/listar', 'Planejamento\Controllers\InstrumentosGestaoController', 'listar');
+        $this->add('/api/planejamento/instrumentos/salvar', 'Planejamento\Controllers\InstrumentosGestaoController', 'salvar');
 
         // =========================================================================
         // 5. MÓDULO CONFIGURAÇÕES (ConfigController)
