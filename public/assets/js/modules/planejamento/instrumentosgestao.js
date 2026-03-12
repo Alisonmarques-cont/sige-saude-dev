@@ -1,4 +1,5 @@
-import { apiFetch } from '../../core/api.js';
+// Importamos a apiFetch e a constante API_BASE
+import { apiFetch, API_BASE } from '../../core/api.js';
 import { showToast } from '../../core/utils.js';
 
 /**
@@ -8,10 +9,8 @@ import { showToast } from '../../core/utils.js';
 export async function buscarInstrumentosGestao(ano = new Date().getFullYear()) {
     const grid = document.getElementById('grid_instrumentos');
     
-    // Evita erro caso o elemento não exista na DOM
     if (!grid) return;
 
-    // Estado de "Carregando" (Feedback visual para o usuário)
     grid.innerHTML = `
         <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-muted);">
             <i class="ph ph-spinner ph-spin" style="font-size: 2rem;"></i>
@@ -20,12 +19,11 @@ export async function buscarInstrumentosGestao(ano = new Date().getFullYear()) {
     `;
 
     try {
-        // Chamada à nossa nova rota de API
-        const dados = await apiFetch(`/api/planejamento/instrumentos/listar?ano=${ano}`);
+        // CORREÇÃO 1: Removido o '/api' do começo. A rota agora será construída corretamente.
+        const dados = await apiFetch(`/planejamento/instrumentos/listar?ano=${ano}`);
         
-        grid.innerHTML = ''; // Limpa o loading
+        grid.innerHTML = '';
 
-        // Validação caso não existam dados
         if (!dados || dados.length === 0) {
             grid.innerHTML = `
                 <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-muted);">
@@ -36,9 +34,7 @@ export async function buscarInstrumentosGestao(ano = new Date().getFullYear()) {
             return;
         }
 
-        // Renderiza cada card dinamicamente
         dados.forEach(inst => {
-            // Mapeamento de Estilos baseados na Regra de Negócio (Status)
             let cardModificador = '';
             let iconModificador = '';
             let badgeClass = '';
@@ -63,7 +59,7 @@ export async function buscarInstrumentosGestao(ano = new Date().getFullYear()) {
                 case 'Bloqueado':
                     cardModificador = 'instrumento-card--aguardando';
                     iconModificador = 'instrumento-card__icon--muted';
-                    badgeClass = ''; // Vamos usar o estilo customizado (cinza) via HTML abaixo
+                    badgeClass = ''; 
                     btnDisabled = 'disabled';
                     btnIcon = 'ph-lock';
                     btnText = 'Bloqueado';
@@ -73,18 +69,15 @@ export async function buscarInstrumentosGestao(ano = new Date().getFullYear()) {
                     iconModificador = 'instrumento-card__icon--muted';
             }
 
-            // Mapeamento visual de Ícones baseado na Sigla
             let iconePh = 'ph-file-text';
             if (inst.sigla === 'PMS') iconePh = 'ph-books';
             if (inst.sigla === 'PAS') iconePh = 'ph-calendar-plus';
             if (inst.sigla.includes('Quad')) iconePh = 'ph-chart-line-up';
 
-            // HTML do Badge
             let badgeHtml = badgeClass 
                 ? `<span class="status-badge ${badgeClass}">${inst.status}</span>`
                 : `<span class="status-badge" style="background: var(--bg-hover); color: var(--text-muted);">${inst.status}</span>`;
 
-            // HTML do Card (Exatamente o que criamos na View, agora preenchido com as variáveis)
             const cardHtml = `
                 <div class="card instrumento-card ${cardModificador}">
                     <div>
@@ -116,64 +109,104 @@ export async function buscarInstrumentosGestao(ano = new Date().getFullYear()) {
     }
 }
 
-// Stub para ação futura do botão "Ver Detalhes"
 window.abrirDetalhesInstrumento = function(id) {
     showToast(`Visualização do instrumento #${id} em desenvolvimento.`, 'info');
 }
 
-// Expõe a função principal no window para ser chamada externamente (ex: onlick das abas)
 window.buscarInstrumentosGestao = buscarInstrumentosGestao;
 
 // =========================================================================
 // Modal e Acções de CRUD
 // =========================================================================
 
+// Para criar um novo registo, garantimos que a modal está limpa
 window.abrirModalNovoInstrumento = function() {
     const modal = document.getElementById('modal_novo_instrumento');
-    if(modal) modal.style.display = 'flex'; // O seu CSS base de modals costuma usar flex para centralizar
+    if(modal) {
+        document.getElementById('form_novo_instrumento').reset();
+        document.getElementById('instrumento_id').value = ''; // Garante que não há ID
+        document.getElementById('modal_instrumento_title').innerText = 'Novo Instrumento de Gestão';
+        modal.style.display = 'flex';
+    }
+}
+
+// Para editar, procuramos os dados, preenchemos a modal e só depois abrimos
+window.abrirDetalhesInstrumento = async function(id) {
+    try {
+        const response = await apiFetch(`/planejamento/instrumentos/detalhes?id=${id}`);
+        
+        if (response && response.success) {
+            const data = response.data;
+            const form = document.getElementById('form_novo_instrumento');
+            
+            // Preenche o formulário com os dados do banco
+            document.getElementById('instrumento_id').value = data.id;
+            form.elements['sigla'].value = data.sigla;
+            form.elements['nome'].value = data.nome;
+            form.elements['periodicidade'].value = data.periodicidade;
+            form.elements['ano_referencia'].value = data.ano_referencia;
+            form.elements['prazo_legal'].value = data.prazo_legal;
+            form.elements['data_limite'].value = data.data_limite || '';
+            form.elements['status'].value = data.status;
+
+            // Muda o título e abre a modal
+            document.getElementById('modal_instrumento_title').innerText = 'Editar Instrumento de Gestão';
+            document.getElementById('modal_novo_instrumento').style.display = 'flex';
+        } else {
+            showToast(response?.error || 'Erro ao carregar detalhes.', 'error');
+        }
+    } catch (error) {
+        console.error('Erro ao buscar instrumento:', error);
+        showToast('Falha na comunicação ao abrir detalhes.', 'error');
+    }
 }
 
 window.fecharModalNovoInstrumento = function() {
     const modal = document.getElementById('modal_novo_instrumento');
     if(modal) {
         modal.style.display = 'none';
-        document.getElementById('form_novo_instrumento').reset(); // Limpa o formulário ao fechar
+        document.getElementById('form_novo_instrumento').reset();
     }
 }
 
 window.salvarInstrumento = async function(event) {
-    event.preventDefault(); // Impede o refresh da página (comportamento nativo do submit)
+    event.preventDefault(); 
 
     const form = document.getElementById('form_novo_instrumento');
     const formData = new FormData(form);
     const btnSalvar = document.getElementById('btn_salvar_instrumento');
 
-    // UX: Estado de loading no botão
+    // UX: Estado de Loading
     const textoOriginal = btnSalvar.innerHTML;
     btnSalvar.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Guardando...';
     btnSalvar.disabled = true;
 
+    // LÓGICA DE ARQUITETURA: Descobre para qual rota enviar (Create ou Update)
+    const id = formData.get('id');
+    const endpoint = id ? '/planejamento/instrumentos/atualizar' : '/planejamento/instrumentos/salvar';
+
     try {
-        const response = await apiFetch('/api/planejamento/instrumentos/salvar', {
+        const res = await fetch(API_BASE + endpoint, {
             method: 'POST',
             body: formData 
         });
 
+        const response = await res.json();
+
         if (response && response.success) {
-            showToast('Instrumento de gestão guardado com sucesso!', 'success');
+            showToast(response.message || 'Operação realizada com sucesso!', 'success');
             fecharModalNovoInstrumento();
             
-            // Recarrega o Grid dinamicamente baseando-se no ano atual escolhido (fallback para 2024)
-            const ano = formData.get('ano_referencia') || 2024;
+            // Recarrega o grid para refletir a nova alteração imediatamente
+            const ano = formData.get('ano_referencia') || new Date().getFullYear();
             buscarInstrumentosGestao(ano); 
         } else {
-            showToast(response.error || 'Erro ao guardar o instrumento.', 'error');
+            showToast(response.error || 'Erro ao guardar.', 'error');
         }
     } catch (error) {
         console.error('Erro na submissão:', error);
         showToast('Falha na comunicação com o servidor.', 'error');
     } finally {
-        // Restaura o botão
         btnSalvar.innerHTML = textoOriginal;
         btnSalvar.disabled = false;
     }

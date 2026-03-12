@@ -83,6 +83,8 @@ class Router {
         // Rotas de API - Instrumentos de Gestão
         $this->add('/api/planejamento/instrumentos/listar', 'Planejamento\Controllers\InstrumentosGestaoController', 'listar');
         $this->add('/api/planejamento/instrumentos/salvar', 'Planejamento\Controllers\InstrumentosGestaoController', 'salvar');
+        $this->add('/api/planejamento/instrumentos/detalhes', 'Planejamento\Controllers\InstrumentosGestaoController', 'getInstrumento');
+        $this->add('/api/planejamento/instrumentos/atualizar', 'Planejamento\Controllers\InstrumentosGestaoController', 'atualizar');
 
         // =========================================================================
         // 5. MÓDULO CONFIGURAÇÕES (ConfigController)

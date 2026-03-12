@@ -15,14 +15,17 @@
     <div class="plan-instrumentos-grid" id="grid_instrumentos">
         </div>
 
-    <div id="modal_novo_instrumento" class="modal" style="display: none;">
+        <div id="modal_novo_instrumento" class="modal" style="display: none;">
         <div class="modal-content" style="max-width: 600px;">
             <div class="modal-header">
-                <h2>Novo Instrumento de Gestão</h2>
+                <h2 id="modal_instrumento_title">Novo Instrumento de Gestão</h2>
                 <button class="close-modal" onclick="fecharModalNovoInstrumento()"><i class="ph ph-x"></i></button>
             </div>
             <div class="modal-body">
                 <form id="form_novo_instrumento" onsubmit="salvarInstrumento(event)">
+                    
+                    <input type="hidden" name="id" id="instrumento_id">
+
                     <div class="form-row" style="display: flex; gap: 15px; margin-bottom: 15px;">
                         <div class="form-group" style="flex: 1;">
                             <label>Sigla *</label>
@@ -86,5 +89,3 @@
             </div>
         </div>
     </div>
-
-</div>
