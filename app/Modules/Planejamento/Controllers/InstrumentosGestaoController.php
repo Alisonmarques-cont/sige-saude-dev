@@ -48,13 +48,61 @@ class InstrumentosGestaoController {
         }
     }
 
-    /**
-     * Futuro método para Salvar (Insert/Update)
-     * Rota: POST /api/planejamento/instrumentos/salvar
-     */
     public function salvar() {
-        // Deixando o esqueleto (Stub) pronto para o nosso próximo passo de CRUD
-        header('Content-Type: application/json');
-        echo json_encode(['message' => 'Método salvar em desenvolvimento.']);
+        header('Content-Type: application/json; charset=utf-8');
+
+        // Captura e sanitização básica dos dados vindos do FormData
+        $sigla = trim($_POST['sigla'] ?? '');
+        $nome = trim($_POST['nome'] ?? '');
+        $periodicidade = trim($_POST['periodicidade'] ?? '');
+        $ano_referencia = trim($_POST['ano_referencia'] ?? '');
+        $prazo_legal = trim($_POST['prazo_legal'] ?? '');
+        $data_limite = trim($_POST['data_limite'] ?? '');
+        $status = trim($_POST['status'] ?? 'Aguardando');
+
+        // Validação de segurança básica (Server-Side)
+        if (empty($sigla) || empty($nome) || empty($periodicidade) || empty($ano_referencia)) {
+            http_response_code(400); // Bad Request
+            echo json_encode(['success' => false, 'error' => 'Preencha todos os campos obrigatórios.']);
+            return;
+        }
+
+        // Se a data limite vier vazia, forçamos o NULL para o MySQL aceitar corretamente
+        if ($data_limite === '') {
+            $data_limite = null;
+        }
+
+        // Preparação do SQL
+        $sql = "INSERT INTO planejamento_instrumentos 
+                (sigla, nome, periodicidade, prazo_legal, ano_referencia, data_limite, status) 
+                VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+        try {
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([
+                $sigla, 
+                $nome, 
+                $periodicidade, 
+                $prazo_legal, 
+                $ano_referencia, 
+                $data_limite, 
+                $status
+            ]);
+
+            http_response_code(201); // 201 Created
+            echo json_encode([
+                'success' => true, 
+                'message' => 'Instrumento criado com sucesso',
+                'id' => $this->db->lastInsertId()
+            ]);
+
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode([
+                'success' => false, 
+                'error' => 'Erro interno ao guardar o instrumento de gestão.',
+                'details' => $e->getMessage()
+            ]);
+        }
     }
 }

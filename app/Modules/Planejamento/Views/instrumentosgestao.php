@@ -7,107 +7,84 @@
                 Acompanhe os prazos legais para elaboração e envio (LC nº 141/2012 e DigiSUS).
             </p>
         </div>
-        <button class="btn-primary" onclick="abrirModalNovoInstrumento()" style="display: none;">
+        <button class="btn-primary" onclick="abrirModalNovoInstrumento()">
             <i class="ph ph-plus"></i> Novo Registro
         </button>
     </div>
 
     <div class="plan-instrumentos-grid" id="grid_instrumentos">
-        
-        <div class="card instrumento-card instrumento-card--vigente">
-            <div>
-                <div class="instrumento-card__header">
-                    <h4 class="instrumento-card__title">
-                        <i class="ph ph-books instrumento-card__icon instrumento-card__icon--primary"></i> PMS
-                    </h4>
-                    <span class="status-badge ativo">Vigente</span>
-                </div>
-                <p class="instrumento-card__name">Plano Municipal de Saúde</p>
-                <div class="instrumento-card__details">
-                    <p><strong>Periodicidade:</strong> Quadrienal</p>
-                    <p><strong>Prazo:</strong> No 1º ano da gestão.</p>
-                </div>
-            </div>
-            <button class="btn-outline instrumento-card__action">
-                <i class="ph ph-eye"></i> Ver Detalhes
-            </button>
         </div>
 
-        <div class="card instrumento-card instrumento-card--alerta">
-            <div>
-                <div class="instrumento-card__header">
-                    <h4 class="instrumento-card__title">
-                        <i class="ph ph-calendar-plus instrumento-card__icon instrumento-card__icon--warning"></i> PAS
-                    </h4>
-                    <span class="status-badge warning">Em Elaboração</span>
-                </div>
-                <p class="instrumento-card__name">Programação Anual de Saúde</p>
-                <div class="instrumento-card__details">
-                    <p><strong>Periodicidade:</strong> Anual</p>
-                    <p><strong>Prazo:</strong> Fim do ano anterior à vigência.</p>
-                </div>
+    <div id="modal_novo_instrumento" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h2>Novo Instrumento de Gestão</h2>
+                <button class="close-modal" onclick="fecharModalNovoInstrumento()"><i class="ph ph-x"></i></button>
             </div>
-            <button class="btn-outline instrumento-card__action">
-                <i class="ph ph-eye"></i> Ver Detalhes
-            </button>
-        </div>
+            <div class="modal-body">
+                <form id="form_novo_instrumento" onsubmit="salvarInstrumento(event)">
+                    <div class="form-row" style="display: flex; gap: 15px; margin-bottom: 15px;">
+                        <div class="form-group" style="flex: 1;">
+                            <label>Sigla *</label>
+                            <input type="text" name="sigla" class="input-modern" placeholder="Ex: PMS, PAS, RAG..." required>
+                        </div>
+                        <div class="form-group" style="flex: 2;">
+                            <label>Nome do Instrumento *</label>
+                            <input type="text" name="nome" class="input-modern" placeholder="Ex: Plano Municipal de Saúde" required>
+                        </div>
+                    </div>
 
-        <div class="card instrumento-card instrumento-card--alerta">
-            <div>
-                <div class="instrumento-card__header">
-                    <h4 class="instrumento-card__title">
-                        <i class="ph ph-file-text instrumento-card__icon instrumento-card__icon--warning"></i> RAG
-                    </h4>
-                    <span class="status-badge warning">Aberto</span>
-                </div>
-                <p class="instrumento-card__name">Relatório Anual de Gestão</p>
-                <div class="instrumento-card__details">
-                    <p><strong>Periodicidade:</strong> Anual</p>
-                    <p><strong>Prazo:</strong> Até 30 de março do ano seguinte.</p>
-                </div>
+                    <div class="form-row" style="display: flex; gap: 15px; margin-bottom: 15px;">
+                        <div class="form-group" style="flex: 1;">
+                            <label>Periodicidade *</label>
+                            <select name="periodicidade" class="input-modern" required>
+                                <option value="Quadrienal">Quadrienal</option>
+                                <option value="Anual">Anual</option>
+                                <option value="Quadrimestral">Quadrimestral</option>
+                                <option value="Mensal">Mensal</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label>Ano de Referência *</label>
+                            <input type="number" name="ano_referencia" class="input-modern" value="2024" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row" style="display: flex; gap: 15px; margin-bottom: 15px;">
+                        <div class="form-group" style="flex: 2;">
+                            <label>Prazo Legal (Descrição) *</label>
+                            <input type="text" name="prazo_legal" class="input-modern" placeholder="Ex: Até o final do mês de Maio" required>
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label>Data Limite (Opcional)</label>
+                            <input type="date" name="data_limite" class="input-modern">
+                        </div>
+                    </div>
+
+                    <div class="form-row" style="display: flex; gap: 15px; margin-bottom: 25px;">
+                        <div class="form-group" style="flex: 1;">
+                            <label>Status Inicial *</label>
+                            <select name="status" class="input-modern" required>
+                                <option value="Aguardando">Aguardando</option>
+                                <option value="Em Elaboração">Em Elaboração</option>
+                                <option value="Aberto">Aberto</option>
+                                <option value="Vigente">Vigente</option>
+                                <option value="Entregue">Entregue</option>
+                                <option value="Atrasado">Atrasado</option>
+                                <option value="Bloqueado">Bloqueado</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-actions" style="display: flex; justify-content: flex-end; gap: 15px; border-top: 1px solid var(--border); padding-top: 15px;">
+                        <button type="button" class="btn-outline" onclick="fecharModalNovoInstrumento()">Cancelar</button>
+                        <button type="submit" class="btn-primary" id="btn_salvar_instrumento">
+                            <i class="ph ph-floppy-disk"></i> Salvar Instrumento
+                        </button>
+                    </div>
+                </form>
             </div>
-            <button class="btn-outline instrumento-card__action">
-                <i class="ph ph-eye"></i> Ver Detalhes
-            </button>
         </div>
-
-        <div class="card instrumento-card instrumento-card--vigente">
-            <div>
-                <div class="instrumento-card__header">
-                    <h4 class="instrumento-card__title">
-                        <i class="ph ph-chart-line-up instrumento-card__icon instrumento-card__icon--primary"></i> 1º Quad.
-                    </h4>
-                    <span class="status-badge ativo">Entregue</span>
-                </div>
-                <p class="instrumento-card__name">Relatório Detalhado (RDQA)</p>
-                <div class="instrumento-card__details">
-                    <p><strong>Periodicidade:</strong> Quadrimestral</p>
-                    <p><strong>Prazo:</strong> Até o final de Maio.</p>
-                </div>
-            </div>
-            <button class="btn-outline instrumento-card__action">
-                <i class="ph ph-eye"></i> Ver Detalhes
-            </button>
-        </div>
-
-        <div class="card instrumento-card instrumento-card--aguardando">
-            <div>
-                <div class="instrumento-card__header">
-                    <h4 class="instrumento-card__title">
-                        <i class="ph ph-chart-line-up instrumento-card__icon instrumento-card__icon--muted"></i> 2º Quad.
-                    </h4>
-                    <span class="status-badge" style="background: var(--bg-hover); color: var(--text-muted);">Aguardando</span>
-                </div>
-                <p class="instrumento-card__name">Relatório Detalhado (RDQA)</p>
-                <div class="instrumento-card__details">
-                    <p><strong>Periodicidade:</strong> Quadrimestral</p>
-                    <p><strong>Prazo:</strong> Até o final de Setembro.</p>
-                </div>
-            </div>
-            <button class="btn-outline instrumento-card__action" disabled>
-                <i class="ph ph-lock"></i> Bloqueado
-            </button>
-        </div>
-
     </div>
+
 </div>

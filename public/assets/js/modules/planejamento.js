@@ -4,21 +4,19 @@ import { buscarInstrumentosGestao } from './planejamento/instrumentosgestao.js';
 
 // Função para alternar abas (Exposta no window para funcionar no onclick)
 window.alternarAbaPlanejamento = function(abaId, btn) {
-    // 1. Esconde todos os conteúdos
+    // Esconde todas as abas e remove classe active...
     const conteudos = document.querySelectorAll('.tab-content-plan');
     conteudos.forEach(el => el.style.display = 'none');
     
-    // 2. Remove classe active dos botões
     const btns = document.querySelectorAll('#page-planejamento .tab-link');
     btns.forEach(b => b.classList.remove('active'));
 
-    // 3. Ativa o selecionado
     const alvo = document.getElementById(abaId);
     if(alvo) alvo.style.display = 'block';
     
     if(btn) btn.classList.add('active');
 
-    // 4.Se a aba selecionada for a de obrigações, dispara o Fetch!
+    // Se a aba selecionada for a de obrigações, dispara o Fetch!
     if (abaId === 'aba_plan_obrigacoes') {
         buscarInstrumentosGestao();
     }

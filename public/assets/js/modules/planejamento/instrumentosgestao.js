@@ -123,3 +123,58 @@ window.abrirDetalhesInstrumento = function(id) {
 
 // Expõe a função principal no window para ser chamada externamente (ex: onlick das abas)
 window.buscarInstrumentosGestao = buscarInstrumentosGestao;
+
+// =========================================================================
+// Modal e Acções de CRUD
+// =========================================================================
+
+window.abrirModalNovoInstrumento = function() {
+    const modal = document.getElementById('modal_novo_instrumento');
+    if(modal) modal.style.display = 'flex'; // O seu CSS base de modals costuma usar flex para centralizar
+}
+
+window.fecharModalNovoInstrumento = function() {
+    const modal = document.getElementById('modal_novo_instrumento');
+    if(modal) {
+        modal.style.display = 'none';
+        document.getElementById('form_novo_instrumento').reset(); // Limpa o formulário ao fechar
+    }
+}
+
+window.salvarInstrumento = async function(event) {
+    event.preventDefault(); // Impede o refresh da página (comportamento nativo do submit)
+
+    const form = document.getElementById('form_novo_instrumento');
+    const formData = new FormData(form);
+    const btnSalvar = document.getElementById('btn_salvar_instrumento');
+
+    // UX: Estado de loading no botão
+    const textoOriginal = btnSalvar.innerHTML;
+    btnSalvar.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Guardando...';
+    btnSalvar.disabled = true;
+
+    try {
+        const response = await apiFetch('/api/planejamento/instrumentos/salvar', {
+            method: 'POST',
+            body: formData 
+        });
+
+        if (response && response.success) {
+            showToast('Instrumento de gestão guardado com sucesso!', 'success');
+            fecharModalNovoInstrumento();
+            
+            // Recarrega o Grid dinamicamente baseando-se no ano atual escolhido (fallback para 2024)
+            const ano = formData.get('ano_referencia') || 2024;
+            buscarInstrumentosGestao(ano); 
+        } else {
+            showToast(response.error || 'Erro ao guardar o instrumento.', 'error');
+        }
+    } catch (error) {
+        console.error('Erro na submissão:', error);
+        showToast('Falha na comunicação com o servidor.', 'error');
+    } finally {
+        // Restaura o botão
+        btnSalvar.innerHTML = textoOriginal;
+        btnSalvar.disabled = false;
+    }
+}
