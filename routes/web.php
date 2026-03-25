@@ -13,11 +13,12 @@ use Inertia\Inertia;
 |--------------------------------------------------------------------------
 */
 
-// 1. Quando aceder à raiz do site (localhost:8000/), vai direto para o dashboard
+// 1. Routes para o landing page
 Route::get('/', function () {
-    // Se quiser que vá para o login primeiro caso não esteja logado, 
-    // o middleware do financeiro.dashboard já vai tratar disso e empurrar para o login!
-    return redirect()->route('financeiro.dashboard');
+    return Inertia::render('Welcome', [
+        'canLogin' => Route::has('login'),
+        'canRegister' => Route::has('register'),
+    ]);
 });
 
 // 2. O intercetor do Login: O Laravel após o login procura o "/dashboard".
@@ -33,15 +34,6 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
-
-//// MODULO DE FINANCEIRO////
-
-// 1. ROTAS DE LANÇAMENTOS 
-    Route::get('/lancamentos', [LancamentoController::class, 'index'])->name('financeiro.lancamentos.index');
-    Route::get('/lancamentos/novo', [LancamentoController::class, 'create'])->name('financeiro.lancamentos.create');
-    Route::post('/lancamentos', [LancamentoController::class, 'store'])->name('financeiro.lancamentos.store');
-    Route::put('/lancamentos/{id}', [LancamentoController::class, 'update'])->name('financeiro.lancamentos.update');
-    Route::delete('/lancamentos/{id}', [LancamentoController::class, 'destroy'])->name('financeiro.lancamentos.destroy');
 
 
 //// MODULO DE CONFIGURAÇÕES////

@@ -29,11 +29,15 @@ class LancamentoController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+   public function store(Request $request)
     {
         $validated = $request->validate([
             'conta_bancaria_id' => 'required|exists:contas_bancarias,id',
             'fornecedor_id' => 'nullable|exists:fornecedores,id',
+            'plano_conta_id' => 'nullable|exists:plano_contas,id',
+            'numero_empenho' => 'nullable|string|max:255',
+            'processo_licitatorio' => 'nullable|string|max:255',
+            'fonte_recurso' => 'nullable|string|max:255',
             'descricao' => 'required|string|max:255',
             'tipo' => 'required|in:Receita,Despesa',
             'valor' => 'required|numeric|min:0.01',
@@ -53,6 +57,10 @@ class LancamentoController extends Controller
         $validated = $request->validate([
             'conta_bancaria_id' => 'required|exists:contas_bancarias,id',
             'fornecedor_id' => 'nullable|exists:fornecedores,id',
+            'plano_conta_id' => 'nullable|exists:plano_contas,id',
+            'numero_empenho' => 'nullable|string|max:255',
+            'processo_licitatorio' => 'nullable|string|max:255',
+            'fonte_recurso' => 'nullable|string|max:255',
             'descricao' => 'required|string|max:255',
             'tipo' => 'required|in:Receita,Despesa',
             'valor' => 'required|numeric|min:0.01',
@@ -67,7 +75,17 @@ class LancamentoController extends Controller
     
     public function create()
     {
-        return \Inertia\Inertia::render('Financeiro/Lancamentos/Create');
+        $contas = ContaBancaria::where('status', 'Ativa')->get();
+        $fornecedores = Fornecedor::where('status', 'Ativo')->orderBy('razao_social')->get();
+        
+        // Busca o plano de contas e envia para a tela
+        $planoContas = \App\Models\PlanoConta::orderBy('codigo')->get();
+
+        return \Inertia\Inertia::render('Financeiro/Lancamentos/Create', [
+            'contas' => $contas,
+            'fornecedores' => $fornecedores,
+            'planoContas' => $planoContas
+        ]);
     }
 
     public function destroy($id)

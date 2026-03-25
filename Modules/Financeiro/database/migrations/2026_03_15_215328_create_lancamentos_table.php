@@ -17,7 +17,13 @@ return new class extends Migration
             // RELACIONAMENTOS (Foreign Keys)
             $table->foreignId('conta_bancaria_id')->constrained('contas_bancarias')->onDelete('restrict');
             $table->foreignId('fornecedor_id')->nullable()->constrained('fornecedores')->onDelete('restrict');
+            $table->foreignId('plano_conta_id')->nullable()->constrained('plano_contas')->onDelete('restrict'); // <- NOVA
             
+            // DADOS DA GESTÃO (Novos)
+            $table->string('numero_empenho')->nullable();
+            $table->string('processo_licitatorio')->nullable();
+            $table->string('fonte_recurso')->nullable();
+
             // DADOS DO LANÇAMENTO
             $table->string('descricao', 255);
             $table->enum('tipo', ['Receita', 'Despesa']);

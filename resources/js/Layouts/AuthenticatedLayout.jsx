@@ -9,8 +9,10 @@ export default function AuthenticatedLayout({ header, children }) {
     
     // Controles para os menus colapsáveis (Acordeão)
     const [openMenus, setOpenMenus] = useState({
-        financeiro: url.includes('/financeiro') && !url.includes('dashboard'), 
-        cadastros: url.includes('/cadastros'),
+        // O financeiro fica aberto se a URL tiver /financeiro, MAS NÃO se for o dashboard ou os programas
+        financeiro: url.includes('/financeiro') && !url.includes('dashboard') && !url.includes('/programas'), 
+        // O cadastros abre se a URL for de cadastros OU se estivermos a aceder aos programas
+        cadastros: url.includes('/cadastros') || url.includes('/programas'),
         planejamento: url.includes('/planejamento'),
         contratos: url.includes('/contratos'),
     });
@@ -73,12 +75,15 @@ export default function AuthenticatedLayout({ header, children }) {
 
                     {/* Cadastros */}
                     <div>
-                        <button onClick={() => toggleMenu('cadastros')} className="w-full flex items-center justify-between px-4 py-3 border-l-4 border-transparent hover:bg-[#1e282c] hover:text-white text-[#b8c7ce] transition-colors text-left">
+                        <button onClick={() => toggleMenu('cadastros')} className={`w-full flex items-center justify-between px-4 py-3 border-l-4 transition-colors text-left ${(url.includes('/cadastros') || url.includes('/programas')) ? 'border-[#3c8dbc] text-white bg-[#1e282c]' : 'border-transparent hover:bg-[#1e282c] hover:text-white text-[#b8c7ce]'}`}>
                             <div className="flex items-center gap-3">{Icons.cadastros}<span className="text-sm font-medium">Cadastros</span></div>
                             <Chevron isOpen={openMenus.cadastros} />
                         </button>
                         {openMenus.cadastros && (
                             <div className="bg-[#2c3b41] py-1">
+                                <Link href={route('financeiro.programas.index')} className={`block pl-[3.25rem] pr-4 py-2.5 text-sm transition-colors ${url.includes('/programas') ? 'text-white' : 'text-[#8aa4af] hover:text-white'}`}>
+                                    Programas de Trabalho
+                                </Link>
                                 <Link href="#" className="block pl-[3.25rem] pr-4 py-2.5 text-sm text-[#8aa4af] hover:text-white transition-colors">Pacientes</Link>
                                 <Link href="#" className="block pl-[3.25rem] pr-4 py-2.5 text-sm text-[#8aa4af] hover:text-white transition-colors">Profissionais</Link>
                             </div>
@@ -87,7 +92,7 @@ export default function AuthenticatedLayout({ header, children }) {
 
                     {/* Financeiro */}
                     <div>
-                        <button onClick={() => toggleMenu('financeiro')} className={`w-full flex items-center justify-between px-4 py-3 border-l-4 transition-colors text-left ${url.includes('/financeiro') && !isActive('financeiro.dashboard') ? 'border-[#3c8dbc] text-white bg-[#1e282c]' : 'border-transparent hover:bg-[#1e282c] hover:text-white text-[#b8c7ce]'}`}>
+                        <button onClick={() => toggleMenu('financeiro')} className={`w-full flex items-center justify-between px-4 py-3 border-l-4 transition-colors text-left ${url.includes('/financeiro') && !isActive('financeiro.dashboard') && !url.includes('/programas') ? 'border-[#3c8dbc] text-white bg-[#1e282c]' : 'border-transparent hover:bg-[#1e282c] hover:text-white text-[#b8c7ce]'}`}>
                             <div className="flex items-center gap-3">{Icons.financeiro}<span className="text-sm font-medium">Financeiro</span></div>
                             <Chevron isOpen={openMenus.financeiro} />
                         </button>
@@ -177,6 +182,7 @@ export default function AuthenticatedLayout({ header, children }) {
                     <div className="md:hidden bg-[#222d32] absolute top-16 inset-x-0 z-20 shadow-xl border-t border-gray-700 overflow-y-auto max-h-[calc(100vh-4rem)]">
                         <nav className="flex flex-col py-2">
                             <Link href={route('financeiro.dashboard')} className="px-6 py-3 text-gray-300 hover:text-white hover:bg-gray-800">Dashboard</Link>
+                            <Link href={route('financeiro.programas.index')} className="px-6 py-3 text-gray-300 hover:text-white hover:bg-gray-800">Programas de Trabalho</Link>
                             <Link href={route('financeiro.lancamentos.index')} className="px-6 py-3 text-gray-300 hover:text-white hover:bg-gray-800">Lançamentos</Link>
                             <Link href={route('financeiro.contas.index')} className="px-6 py-3 text-gray-300 hover:text-white hover:bg-gray-800">Contas</Link>
                             <Link href={route('financeiro.fornecedores.index')} className="px-6 py-3 text-gray-300 hover:text-white hover:bg-gray-800">Fornecedores</Link>

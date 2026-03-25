@@ -7,6 +7,7 @@ use Modules\Financeiro\Http\Controllers\DashboardController;
 use Modules\Financeiro\Http\Controllers\ContaBancariaController;
 use Modules\Financeiro\Http\Controllers\FornecedorController;
 use Modules\Financeiro\Http\Controllers\LancamentoController;
+use Modules\Financeiro\Http\Controllers\ProgramaTrabalhoController;
 
 Route::middleware(['auth'])->prefix('financeiro')->group(function () {
     
@@ -32,4 +33,9 @@ Route::middleware(['auth'])->prefix('financeiro')->group(function () {
     Route::put('/lancamentos/{id}', [LancamentoController::class, 'update'])->name('financeiro.lancamentos.update');
     Route::delete('/lancamentos/{id}', [LancamentoController::class, 'destroy'])->name('financeiro.lancamentos.destroy');
 
+    // --- ROTAS DE PROGRAMAS DE TRABALHO ---
+    Route::get('/programas', [ProgramaTrabalhoController::class, 'index'])->name('financeiro.programas.index');
+    Route::get('/programas/novo', [ProgramaTrabalhoController::class, 'create'])->name('financeiro.programas.create');
+    Route::post('/programas', [ProgramaTrabalhoController::class, 'store'])->name('financeiro.programas.store');
+    Route::delete('/programas/{id}', [ProgramaTrabalhoController::class, 'destroy'])->name('financeiro.programas.destroy');
 });

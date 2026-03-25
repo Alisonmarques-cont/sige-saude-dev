@@ -1,23 +1,24 @@
-# Changelog - Sige Saúde Modular
+# Changelog - Sige Saúde
 
 Todas as alterações notáveis neste projeto serão documentadas neste ficheiro.
-O formato baseia-se em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/).
+O formato baseia-se no [Keep a Changelog](https://keepachangelog.com/).
 
-## [0.1.0-alpha] - Planeamento de Migração (Atual)
+## [v0.2.0] - Março 2026
 ### Adicionado
-- **Nova Arquitetura Padrão Ouro:** Decisão técnica de migrar o *core* do sistema para Laravel 11 (Backend) e React.js + Inertia.js (Frontend).
-- **Redução de Escopo (MVP):** A versão 0.1 focar-se-á exclusivamente na refatoração e entrega dos módulos: `Dashboard`, `Financeiro` e `Configurações`. Outros módulos serão temporariamente removidos/congelados para garantir a excelência técnica.
-- **Padrão Modular:** Adoção do pacote `nWidart/laravel-modules` para manter a separação por Domínios (DDD) no Backend.
+- **Landing Page (Welcome.jsx):** Nova página inicial moderna com apresentação do sistema e links para Login/Registo.
+- **Módulo Financeiro - Lançamentos:** Reformulação completa da criação de Lançamentos de Modal para uma Tela Cheia (`Create.jsx`) dividida em abas lógicas (Dados Básicos, Gestão/Empenho, Financeiro, Pagamento).
+- **Módulo de Cadastros (Frontend):** Criação da pasta `Cadastros` no React para alinhar a experiência do utilizador (UI) com a arquitetura mental, recebendo a tela de Programas de Saúde.
+- **Programas de Trabalho:** Novo CRUD completo para gerir Blocos de Financiamento e Portarias.
+- **Database Seeder:** Adicionado utilizador mestre padrão (`admin@sigesaude.com`) ao rodar as migrações.
 
-## [0.0.5] - Fim do Ciclo Vanilla PHP (Legado Recente)
+### Alterado/Corrigido
+- Refatoração do ficheiro `Index.jsx` de Configurações, separando cada aba (Entidade, Usuários, Plano de Contas) em componentes individuais na pasta `Partials/`.
+- Correção de Namespace: Removida a pasta `App\` redundante dos *use statements* no ficheiro de rotas do módulo Financeiro para obedecer ao padrão do `nwidart/laravel-modules`.
+- Ajuste na ordem das *migrations* (Plano de Contas agora é criado antes de Lançamentos) para evitar o erro `150 Foreign key constraint is incorrectly formed`.
+
+## [v0.1.0] - Versão Inicial
 ### Adicionado
-- **Módulo Planeamento (Instrumentos de Gestão):** CRUD completo implementado com padrão de Responsabilidade Única (SRP).
-- **Controladores Isolados:** Criação do `InstrumentosGestaoController` isolando a lógica da API REST do controlador principal da página.
-- **UI/UX Aprimorada:** Implementação de Modal em Tela Cheia (Fullscreen Overlay) com CSS puro (BEM) para melhorar a usabilidade em ecrãs complexos.
-- **JavaScript Reativo:** Módulo isolado `instrumentosgestao.js` utilizando Fetch API para renderização assíncrona, eliminando *refreshes* de página (SPA feeling).
-- **Filtros Dinâmicos:** Adicionado filtro de ano com recarregamento em tempo real do Grid de *Cards*.
-
-### Corrigido
-- Correção de conflitos de rota na `apiFetch` (remoção da duplicação `/api/api`).
-- Ajuste no envio de formulários via `FormData` nativo para garantir a correta leitura no PHP (`$_POST`).
-
+- Setup da arquitetura base (Laravel + React + Inertia + Tailwind).
+- Estrutura de Módulos (Configurações, Dashboard, Financeiro).
+- Autenticação configurada via Laravel Breeze.
+- Gestão de Entidade, Utilizadores e Contas Bancárias.

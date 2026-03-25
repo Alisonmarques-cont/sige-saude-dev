@@ -11,9 +11,14 @@ class Lancamento extends Model
 
     protected $table = 'lancamentos';
 
+    // Adicionámos as novas colunas aqui:
     protected $fillable = [
         'conta_bancaria_id',
         'fornecedor_id',
+        'plano_conta_id',
+        'numero_empenho',
+        'processo_licitatorio',
+        'fonte_recurso',
         'descricao',
         'tipo',
         'valor',
@@ -22,15 +27,19 @@ class Lancamento extends Model
         'status',
     ];
 
-    // MÁGICA 1: Este Lançamento pertence a uma Conta Bancária
     public function contaBancaria()
     {
         return $this->belongsTo(ContaBancaria::class, 'conta_bancaria_id');
     }
 
-    // MÁGICA 2: Este Lançamento pertence a um Fornecedor/Cliente
     public function fornecedor()
     {
         return $this->belongsTo(Fornecedor::class, 'fornecedor_id');
+    }
+
+    // NOVA MÁGICA: Ligação com o Plano de Contas
+    public function planoConta()
+    {
+        return $this->belongsTo(\App\Models\PlanoConta::class, 'plano_conta_id');
     }
 }
