@@ -4,19 +4,37 @@ namespace Modules\Contratos\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-// use Modules\Contratos\Database\Factories\ContratoFactory;
+use Modules\Financeiro\Models\Fornecedor;
 
 class Contrato extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     */
-    protected $fillable = [];
+    protected $table = 'contratos';
 
-    // protected static function newFactory(): ContratoFactory
-    // {
-    //     // return ContratoFactory::new();
-    // }
+    protected $fillable = [
+        'processo_id',
+        'fornecedor_id',
+        'numero_contrato',
+        'valor_global',
+        'data_assinatura',
+        'vigencia_inicio',
+        'vigencia_fim',
+        'status',
+    ];
+
+    public function processo()
+    {
+        return $this->belongsTo(Processo::class, 'processo_id');
+    }
+
+    public function fornecedor()
+    {
+        return $this->belongsTo(Fornecedor::class, 'fornecedor_id');
+    }
+    
+    public function aditivos()
+    {
+        return $this->hasMany(Aditivo::class, 'contrato_id');
+    }
 }
