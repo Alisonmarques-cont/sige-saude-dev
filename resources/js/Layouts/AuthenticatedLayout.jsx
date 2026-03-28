@@ -186,6 +186,7 @@ export default function AuthenticatedLayout({ header, children }) {
                             <Link href={route('financeiro.lancamentos.index')} className="px-6 py-3 text-gray-300 hover:text-white hover:bg-gray-800">Lançamentos</Link>
                             <Link href={route('financeiro.contas.index')} className="px-6 py-3 text-gray-300 hover:text-white hover:bg-gray-800">Contas</Link>
                             <Link href={route('financeiro.fornecedores.index')} className="px-6 py-3 text-gray-300 hover:text-white hover:bg-gray-800">Fornecedores</Link>
+                            <Link href={route('contratos.processos.index')} className={`block pl-[3.25rem] pr-4 py-2.5 text-sm transition-colors ${isActive('contratos.processos.index') ? 'text-white' : 'text-[#8aa4af] hover:text-white'}`}>Processos Licitatórios</Link>
                             <Link href={route('configuracoes.entidade')} className="px-6 py-3 text-gray-300 hover:text-white hover:bg-gray-800">Configurações</Link>
                         </nav>
                     </div>

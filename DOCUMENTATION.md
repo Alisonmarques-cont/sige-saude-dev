@@ -14,32 +14,20 @@ Uma das nossas principais regras arquiteturais é que **o Backend é focado no d
 ## 4. Estrutura de Pastas Atualizada
 
 /sige-saude-v2 (Raiz do Projeto)
-├── app/                      
-│   └── Models/               # Modelos Globais (Ex: User, PlanoConta)
-│
-├── database/                 
-│   ├── migrations/           # Tabelas globais e ordem cronológica corrigida
-│   └── seeders/              # DatabaseSeeder.php (Gera o Admin Master)
-│
 ├── Modules/                  # 🌟 ARQUITETURA DE BACKEND MODULAR
-│   ├── Financeiro/           
-│   │   ├── app/Http/Controllers/  # Ex: LancamentoController, ProgramaTrabalhoController
-│   │   ├── app/Models/       
-│   │   ├── database/migrations/   
-│   │   └── routes/web.php    
-│   └── Configuracoes/        
+│   ├── Contratos/            # NOVO: Módulo de Licitações, Atas e Contratos
+│   │   ├── app/Http/Controllers/ # Ex: ProcessoController
+│   │   ├── app/Models/           # Ex: Processo, Contrato
+│   │   └── database/migrations/  
+│   ├── Financeiro/           # Módulo de Dinheiro, Lançamentos e Programas
+│   └── Configuracoes/        # Módulo Base de Entidade e Usuários
 │
 ├── resources/                # 🌟 NOSSO FRONTEND (React + Inertia)
 │   ├── js/
 │       ├── Layouts/          
-│       │   └── AuthenticatedLayout.jsx # Topbar + Sidebar com Acordeão
 │       └── Pages/            
-│           ├── Welcome.jsx             # Landing Page do Sistema
-│           ├── Cadastros/              # MÓDULO VISUAL DE CADASTROS
-│           │   └── Programas/          # Telas de Programas e Blocos
-│           ├── Financeiro/             # MÓDULO VISUAL FINANCEIRO
-│           │   ├── Lancamentos/        # Telas Create (Abas) e Index
-│           │   ├── Contas/
-│           │   └── Fornecedores/
-│           └── Configuracoes/          # MÓDULO VISUAL DE CONFIGURAÇÕES
-│               └── Entidade/Partials/  # Componentização (SRP - Single Responsibility)
+│           ├── Cadastros/              
+│           ├── Contratos/              # MÓDULO VISUAL DE CONTRATOS
+│           │   └── Processos/          # Telas Create e Index de Pregões
+│           ├── Financeiro/             
+│           └── Configuracoes/

@@ -3,6 +3,16 @@
 Todas as alterações notáveis neste projeto serão documentadas neste ficheiro.
 O formato baseia-se no [Keep a Changelog](https://keepachangelog.com/).
 
+## [v0.3.0] - Março 2026
+### Adicionado
+- **Novo Módulo: Contratos:** Criação da estrutura base do módulo (Backend e Frontend) para gestão da Lei de Licitações.
+- **Processos Licitatórios:** Criado o CRUD de Processos Administrativos (Pregões, Dispensas, Inexigibilidades, etc.) com tabelas, modelos, rotas e controladores.
+- **Frontend de Processos:** Criadas as telas React `Index.jsx` (Listagem com status visual) e `Create.jsx` (Formulário completo).
+- **Sidebar Atualizada:** Adicionado o link para "Processos Licitatórios" dentro do menu Acordeão de Contratos no `AuthenticatedLayout.jsx`.
+- **Base de Dados:** Criadas as migrações em cascata para `processos` e `contratos` (preparando o terreno para Atas e Aditivos).
+
+## [v0.2.0] - Março 2026
+*(Mantenha o resto que já lá estava...)*
 ## [v0.2.0] - Março 2026
 ### Adicionado
 - **Landing Page (Welcome.jsx):** Nova página inicial moderna com apresentação do sistema e links para Login/Registo.

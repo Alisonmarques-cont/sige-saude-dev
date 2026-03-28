@@ -1,5 +1,6 @@
 {
     "Dashboard": true,
     "Financeiro": true,
-    "Configuracoes": true
+    "Configuracoes": true,
+    "Contratos": true
 }
