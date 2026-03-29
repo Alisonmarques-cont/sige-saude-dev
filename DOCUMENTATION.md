@@ -11,7 +11,14 @@ Não utilizamos chamadas `fetch()` manuais ou Axios para desenhar a interface. O
 Uma das nossas principais regras arquiteturais é que **o Backend é focado no domínio, mas o Frontend é focado no Utilizador (UI/UX).**
 * *Exemplo Prático:* O controlador `ProgramaTrabalhoController` vive no módulo **Financeiro** (pois dita as regras do dinheiro e empenhos), mas no Frontend (React), a tela dele está arrumada em `Pages/Cadastros/Programas`, pois para o utilizador, trata-se de um Cadastro Base.
 
-## 4. Estrutura de Pastas Atualizada
+## 4. Regras de Domínio: Módulo de Contratos (Licitações)
+O Sige Saúde segue estritamente a arquitetura de dados da Lei de Licitações Brasileira, garantindo o controlo de saldos e empenhos em cascata:
+1. **Processo Licitatório (Mãe):** Define o teto máximo da despesa (`valor_total_licitado`).
+2. **Ata de Registro de Preços (1 para N):** Um processo pode ter várias atas (vários fornecedores vencedores de diferentes lotes). *A soma das Atas <= Valor Licitado.*
+3. **Contrato (1 para 1):** Uma Ata gera apenas um Contrato Firmado. *Valor do Contrato <= Valor da Ata.*
+4. **Aditivos (1 para N):** Ligam-se ao Contrato, alterando de forma dinâmica o seu Valor Atualizado e a sua Vigência Fim na interface do utilizador.
+
+## 5. Estrutura de Pastas Atualizada
 
 /sige-saude-v2 (Raiz do Projeto)
 ├── Modules/                  # 🌟 ARQUITETURA DE BACKEND MODULAR

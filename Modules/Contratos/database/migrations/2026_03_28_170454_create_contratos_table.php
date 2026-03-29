@@ -13,7 +13,7 @@ return new class extends Migration
             
             // RELACIONAMENTOS
             // Ligação ao Processo (Módulo Contratos)
-            $table->foreignId('processo_id')->constrained('processos')->onDelete('restrict');
+            $table->foreignId('ata_id')->constrained('atas')->onDelete('restrict');
             // Ligação ao Fornecedor (Módulo Financeiro)
             $table->foreignId('fornecedor_id')->constrained('fornecedores')->onDelete('restrict');
             

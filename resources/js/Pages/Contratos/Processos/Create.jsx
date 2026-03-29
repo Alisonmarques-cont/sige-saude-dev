@@ -9,6 +9,7 @@ export default function Create({ auth }) {
         numero_modalidade: '',
         objeto: '',
         ano: new Date().getFullYear(),
+        valor_total_licitado: '',
         status: 'Em Andamento',
     });
 
@@ -73,6 +74,12 @@ export default function Create({ auth }) {
                                 <option value="Concorrência">Concorrência</option>
                                 <option value="Adesão (Carona)">Adesão à ARP (Carona)</option>
                             </select>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-bold text-gray-700 mb-1">Valor Total Licitado (R$) *</label>
+                            <input type="number" step="0.01" value={data.valor_total_licitado} onChange={e => setData('valor_total_licitado', e.target.value)} className="w-full border-gray-300 rounded focus:ring-[#3c8dbc] font-bold text-[#00a65a]" placeholder="0.00" />
+                            {errors.valor_total_licitado && <div className="text-red-500 text-xs mt-1">{errors.valor_total_licitado}</div>}
                         </div>
 
                         <div className="md:col-span-2">

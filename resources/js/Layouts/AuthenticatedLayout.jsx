@@ -126,6 +126,10 @@ export default function AuthenticatedLayout({ header, children }) {
                                 <Link href={route('contratos.processos.index')} className={`block pl-[3.25rem] pr-4 py-2.5 text-sm transition-colors ${isActive('contratos.processos.index') ? 'text-white' : 'text-[#8aa4af] hover:text-white'}`}>
                                     Processos Licitatórios
                                 </Link>
+                                {/* NOVO LINK AQUI: */}
+                                <Link href={route('contratos.atas.index')} className={`block pl-[3.25rem] pr-4 py-2.5 text-sm transition-colors ${isActive('contratos.atas.index') ? 'text-white' : 'text-[#8aa4af] hover:text-white'}`}>
+                                    Atas de Registro (ARP)
+                                </Link>
                                 <Link href={route('contratos.lista.index')} className={`block pl-[3.25rem] pr-4 py-2.5 text-sm transition-colors ${isActive('contratos.lista.index') ? 'text-white' : 'text-[#8aa4af] hover:text-white'}`}>
                                     Contratos Firmados
                                 </Link>

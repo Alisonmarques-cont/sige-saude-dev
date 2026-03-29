@@ -19,8 +19,8 @@ return new class extends Migration
             // Detalhes
             $table->text('objeto'); // O que está a ser licitado
             $table->year('ano');
+            $table->decimal('valor_total_licitado', 15, 2)->default(0);
             $table->enum('status', ['Em Andamento', 'Homologado', 'Deserto/Fracassado', 'Suspenso', 'Concluído'])->default('Em Andamento');
-            
             $table->timestamps();
         });
     }

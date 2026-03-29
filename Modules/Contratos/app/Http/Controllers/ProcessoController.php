@@ -29,6 +29,7 @@ class ProcessoController extends Controller
             'numero_modalidade' => 'nullable|string|max:50',
             'objeto' => 'required|string',
             'ano' => 'required|integer',
+            'valor_total_licitado' => 'required|numeric|min:0', // <-- ESTA É A LINHA QUE FALTAVA!
             'status' => 'required|in:Em Andamento,Homologado,Deserto/Fracassado,Suspenso,Concluído',
         ]);
 

@@ -11,6 +11,14 @@ O formato baseia-se no [Keep a Changelog](https://keepachangelog.com/).
 - **Sidebar Atualizada:** Adicionado o link para "Processos Licitatórios" dentro do menu Acordeão de Contratos no `AuthenticatedLayout.jsx`.
 - **Base de Dados:** Criadas as migrações em cascata para `processos` e `contratos` (preparando o terreno para Atas e Aditivos).
 
+### Alterado / Refatorado (Regra de Negócio)
+- **Hierarquia de Contratos:** Refatoração completa da base de dados para respeitar a Lei de Licitações. O fluxo agora é: `Processo Licitatório -> Ata de Registro de Preços (ARP) -> Contrato Firmado`.
+- **Travas Matemáticas (Backend):** Implementação de bloqueios rígidos no Backend:
+  - A soma das Atas não pode ultrapassar o `valor_total_licitado` do Processo.
+  - O `valor_global` do Contrato não pode ultrapassar o valor teto da sua respetiva Ata.
+- **Processos Licitatórios:** Adicionado o campo `valor_total_licitado` à base de dados e ao formulário de criação.
+- **Auto-preenchimento (UX):** A tela de Contratos agora auto-preenche o Fornecedor com base na Ata de Registro de Preços selecionada.
+
 ## [v0.2.0] - Março 2026
 *(Mantenha o resto que já lá estava...)*
 ## [v0.2.0] - Março 2026

@@ -18,6 +18,15 @@ class Processo extends Model
         'numero_modalidade',
         'objeto',
         'ano',
+        'valor_total_licitado',
         'status',
     ];
+
+    public function atas()
+    {
+        return $this->hasMany(Ata::class, 'processo_id');
+    }
 }
+
+
+

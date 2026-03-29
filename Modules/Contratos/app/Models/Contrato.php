@@ -13,7 +13,7 @@ class Contrato extends Model
     protected $table = 'contratos';
 
     protected $fillable = [
-        'processo_id',
+        'ata_id',
         'fornecedor_id',
         'numero_contrato',
         'valor_global',
@@ -23,9 +23,9 @@ class Contrato extends Model
         'status',
     ];
 
-    public function processo()
+    public function ata()
     {
-        return $this->belongsTo(Processo::class, 'processo_id');
+        return $this->belongsTo(Ata::class, 'ata_id');
     }
 
     public function fornecedor()
