@@ -11,9 +11,14 @@ class ProcessoController extends Controller
 {
     public function index()
     {
-        // Traz os processos mais recentes primeiro (por ano e número)
-        $processos = Processo::orderBy('ano', 'desc')->orderBy('id', 'desc')->get();
-        return Inertia::render('Contratos/Processos/Index', ['processos' => $processos]);
+        $processos = Processo::with([
+            'atas.fornecedor', 
+            'atas.contrato.aditivos'
+        ])->orderBy('id', 'desc')->get();
+
+        return Inertia::render('Contratos/Hub', [
+            'processos' => $processos
+        ]);
     }
 
     public function create()
@@ -41,5 +46,25 @@ class ProcessoController extends Controller
     {
         Processo::findOrFail($id)->delete();
         return redirect()->route('contratos.processos.index');
+    }
+
+    public function edit($id)
+    {
+        $processo = Processo::findOrFail($id);
+        return Inertia::render('Contratos/Processos/Edit', ['processo' => $processo]);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $processo = Processo::findOrFail($id);
+        $validated = $request->validate([
+        'numero_processo' => 'required|string',
+        'modalidade' => 'required',
+        'objeto' => 'required',
+        'valor_total_licitado' => 'required|numeric',
+        'status' => 'required',
+    ]);
+        $processo->update($validated);
+        return redirect()->route('contratos.processos.index')->with('success', 'Processo atualizado!');
     }
 }

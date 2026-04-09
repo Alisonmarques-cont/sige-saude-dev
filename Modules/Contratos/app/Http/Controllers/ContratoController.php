@@ -62,4 +62,34 @@ class ContratoController extends Controller
         Contrato::findOrFail($id)->delete();
         return redirect()->route('contratos.lista.index');
     }
+
+    public function print($id)
+    {
+        $contrato = Contrato::with(['ata.processo', 'fornecedor', 'aditivos'])->findOrFail($id);
+        return Inertia::render('Contratos/Contratos/Print', ['contrato' => $contrato]);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $contrato = Contrato::with('ata')->findOrFail($id);
+
+        $validated = $request->validate([
+            'numero_contrato' => 'required|string|max:50',
+            'valor_global' => 'required|numeric|min:0.01',
+            'data_assinatura' => 'required|date',
+            'vigencia_inicio' => 'required|date',
+            'vigencia_fim' => 'required|date|after_or_equal:vigencia_inicio',
+            'status' => 'required|in:Ativo,Vencido,Rescindido,Suspenso',
+        ]);
+
+        // Trava: O valor atualizado não pode passar do valor da Ata
+        if ($request->valor_global > $contrato->ata->valor_total_ata) {
+            return back()->withErrors([
+                'valor_global' => 'O valor do Contrato não pode ser maior que o valor da Ata (R$ ' . number_format($contrato->ata->valor_total_ata, 2, ',', '.') . ').'
+            ]);
+        }
+
+        $contrato->update($validated);
+        return redirect()->route('contratos.processos.index');
+    }
 }
