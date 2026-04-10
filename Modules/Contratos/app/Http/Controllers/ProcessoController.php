@@ -51,20 +51,22 @@ class ProcessoController extends Controller
     public function edit($id)
     {
         $processo = Processo::findOrFail($id);
-        return Inertia::render('Contratos/Processos/Edit', ['processo' => $processo]);
+        return \Inertia\Inertia::render('Contratos/Processos/Edit', ['processo' => $processo]);
     }
 
     public function update(Request $request, $id)
     {
         $processo = Processo::findOrFail($id);
         $validated = $request->validate([
-        'numero_processo' => 'required|string',
-        'modalidade' => 'required',
-        'objeto' => 'required',
-        'valor_total_licitado' => 'required|numeric',
-        'status' => 'required',
-    ]);
+            'numero_processo' => 'required|string|max:50',
+            'modalidade' => 'required',
+            'numero_modalidade' => 'nullable|string|max:50',
+            'objeto' => 'required|string',
+            'ano' => 'required|integer',
+            'valor_total_licitado' => 'required|numeric|min:0',
+            'status' => 'required',
+        ]);
         $processo->update($validated);
-        return redirect()->route('contratos.processos.index')->with('success', 'Processo atualizado!');
+        return redirect()->route('contratos.processos.index');
     }
 }

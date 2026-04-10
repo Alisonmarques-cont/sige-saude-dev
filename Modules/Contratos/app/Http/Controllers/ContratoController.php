@@ -92,4 +92,15 @@ class ContratoController extends Controller
         $contrato->update($validated);
         return redirect()->route('contratos.processos.index');
     }
+
+    // --- FUNÇÃO DE EDITAR ---
+    public function edit($id)
+    {
+        // Precisamos do 'with' para a tela carregar os nomes do Processo e Fornecedor no painel cinza
+        $contrato = Contrato::with(['ata.processo', 'fornecedor'])->findOrFail($id);
+        
+        return \Inertia\Inertia::render('Contratos/Contratos/Edit', [
+            'contrato' => $contrato
+        ]);
+    }
 }

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 
 export default function Hub({ auth, processos }) {
     const [busca, setBusca] = useState('');
@@ -138,12 +138,20 @@ export default function Hub({ auth, processos }) {
                                                 </span>
                                                 <span className="font-bold text-gray-700 text-sm">{proc.modalidade} {proc.numero_modalidade}</span>
                                             </div>
-                                            <div className="flex items-center gap-4 mt-3 md:mt-0">
-                                                <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+                                            <div className="flex items-center gap-2 mt-3 md:mt-0">
+                                                <span className="text-xs font-bold text-gray-400 uppercase tracking-wider mr-2 hidden md:inline-block">
                                                     Estimado <span className="text-gray-700 ml-1">{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(proc.valor_total_licitado)}</span>
                                                 </span>
-                                                {/* Link direciona para a tela de criar Ata já enviando o ID do processo */}
-                                                <Link href={route('contratos.atas.create', { processo_id: proc.id })} className="text-sm font-bold text-gray-600 border border-gray-300 rounded px-3 py-1 hover:bg-gray-50 transition-colors">
+                                                
+                                                {/* Ações do Processo */}
+                                                <Link href={route('contratos.processos.edit', proc.id)} className="p-1.5 text-gray-400 hover:text-orange-500 bg-gray-50 hover:bg-orange-50 rounded border border-gray-200 transition-colors" title="Editar Processo">
+                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 00-2 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                                </Link>
+                                                <button onClick={() => { if(confirm('Atenção: Excluir este processo apagará também TODAS as Atas e Contratos vinculados. Deseja continuar?')) router.delete(route('contratos.processos.destroy', proc.id)) }} className="p-1.5 text-gray-400 hover:text-red-500 bg-gray-50 hover:bg-red-50 rounded border border-gray-200 transition-colors" title="Excluir Processo">
+                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                                </button>
+
+                                                <Link href={route('contratos.atas.create', { processo_id: proc.id })} className="ml-2 text-sm font-bold text-gray-600 border border-gray-300 rounded px-3 py-1.5 hover:bg-gray-50 transition-colors">
                                                     + Nova Ata
                                                 </Link>
                                             </div>
@@ -169,12 +177,21 @@ export default function Hub({ auth, processos }) {
                                                             <span className="text-gray-300">|</span>
                                                             <span className="text-sm font-bold text-gray-600 truncate max-w-[200px] md:max-w-md">{ata.fornecedor?.razao_social}</span>
                                                         </div>
-                                                        <div className="flex items-center gap-4 mt-3 md:mt-0">
-                                                            <span className="bg-gray-100 text-gray-600 text-xs font-bold px-3 py-1 rounded-full border border-gray-200">
+                                                       <div className="flex items-center gap-2 mt-3 md:mt-0">
+                                                            <span className="bg-gray-100 text-gray-600 text-xs font-bold px-3 py-1.5 rounded-full border border-gray-200 mr-2 hidden md:inline-block">
                                                                 Reg: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(ata.valor_total_ata)}
                                                             </span>
+                                                            
+                                                            {/* Ações da Ata */}
+                                                            <Link href={route('contratos.atas.edit', ata.id)} className="p-1.5 text-gray-400 hover:text-orange-500 bg-white hover:bg-orange-50 rounded border border-gray-200 transition-colors" title="Editar Ata">
+                                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 00-2 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                                            </Link>
+                                                            <button onClick={() => { if(confirm('Excluir esta Ata? Contratos vinculados também serão apagados.')) router.delete(route('contratos.atas.destroy', ata.id)) }} className="p-1.5 text-gray-400 hover:text-red-500 bg-white hover:bg-red-50 rounded border border-gray-200 transition-colors" title="Excluir Ata">
+                                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                                            </button>
+
                                                             {!ata.contrato && (
-                                                                <Link href={route('contratos.lista.create', { ata_id: ata.id })} className="text-sm font-bold text-gray-600 border border-gray-300 rounded px-3 py-1 hover:bg-white transition-colors bg-gray-50">
+                                                                <Link href={route('contratos.lista.create', { ata_id: ata.id })} className="ml-2 text-sm font-bold text-gray-600 border border-gray-300 rounded px-3 py-1.5 hover:bg-white transition-colors bg-gray-50 shadow-sm">
                                                                     + Contrato
                                                                 </Link>
                                                             )}

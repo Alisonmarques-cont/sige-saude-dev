@@ -62,4 +62,37 @@ class AtaController extends Controller
         Ata::findOrFail($id)->delete();
         return redirect()->route('contratos.atas.index');
     }
+
+    public function edit($id)
+    {
+        $ata = Ata::with(['processo', 'fornecedor'])->findOrFail($id);
+        return \Inertia\Inertia::render('Contratos/Atas/Edit', ['ata' => $ata]);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $ata = Ata::with('processo')->findOrFail($id);
+        
+        $validated = $request->validate([
+            'numero_ata' => 'required|string|max:50',
+            'valor_total_ata' => 'required|numeric|min:0.01',
+            'data_assinatura' => 'required|date',
+            'vigencia_fim' => 'required|date|after_or_equal:data_assinatura',
+            'status' => 'required|in:Ativa,Vencida,Cancelada',
+        ]);
+
+        // Trava: O valor atualizado da Ata não pode passar do saldo restante do Processo
+        // Lógica: Calcula a soma de TODAS as atas, MENOS o valor atual desta ata antes da edição.
+        $outrasAtas = $ata->processo->atas()->where('id', '!=', $id)->sum('valor_total_ata');
+        $saldoPermitido = $ata->processo->valor_total_licitado - $outrasAtas;
+
+        if ($request->valor_total_ata > $saldoPermitido) {
+            return back()->withErrors([
+                'valor_total_ata' => 'O valor da Ata não pode ultrapassar o saldo disponível no Pregão (R$ ' . number_format($saldoPermitido, 2, ',', '.') . ').'
+            ]);
+        }
+
+        $ata->update($validated);
+        return redirect()->route('contratos.processos.index');
+    }
 }

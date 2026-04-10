@@ -3,6 +3,13 @@
 Todas as alterações notáveis neste projeto serão documentadas neste ficheiro.
 O formato baseia-se no [Keep a Changelog](https://keepachangelog.com/).
 
+### Melhorias de Interface e UX (Hub de Contratos)
+- **Hub Centralizado:** Eliminação das sub-abas de navegação. A tela principal de Contratos agora exibe a árvore completa e aninhada (Processos > Atas > Contratos).
+- **Dashboard e KPIs:** Adicionado painel superior dinâmico no Hub com contagem de contratos ativos, volume financeiro contratado e alertas de vencimento para os próximos 60 dias.
+- **Barra de Progresso Visual:** Contratos agora exibem uma barra gráfica indicando o tempo de vigência percorrido.
+- **Ficha de Impressão:** Adicionado botão para gerar a "Ficha de Acompanhamento de Contrato" formatada especificamente para impressão física (`@media print`).
+- **Edição Protegida:** Nova interface de edição de contratos que bloqueia alterações na origem do documento (Ata/Processo) e recalcula as travas matemáticas de limite financeiro.
+
 ## [v0.3.0] - Março 2026
 ### Adicionado
 - **Novo Módulo: Contratos:** Criação da estrutura base do módulo (Backend e Frontend) para gestão da Lei de Licitações.
